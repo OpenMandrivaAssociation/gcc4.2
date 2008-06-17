@@ -39,13 +39,6 @@
 %define jdk_base	java-%{jdk_version}-gcj
 %define jdk_home	%{_prefix}/lib/jvm/%{jdk_base}-%{jdk_version}.0/jre
 
-#-- Alternatives for Java tools
-#       Sun JDK         40
-#       Kaffe           30
-#       Gcj 3.2         20
-%define gcj_alternative_priority 20
-%define gcj_alternative_programs grmic grmiregistry
-
 # Define if building a cross compiler
 # FIXME: assume user does not define both cross and cross_bootstrap variables
 %define build_cross		0
@@ -70,7 +63,6 @@
 %define target_cpu		%{cross_bootstrap}
 %endif
 %if %{system_compiler}
-%define alternative_priority	30%{branch_tag}
 %define cross_prefix		%{nil}
 %define cross_program_prefix	%{nil}
 %define package_suffix		%{nil}
@@ -78,7 +70,6 @@
 %define program_suffix		%{nil}
 %else
 %if %{build_cross}
-%define alternative_priority	10%{branch_tag}
 %define cross_prefix		cross-%{target_cpu}-
 %define cross_program_prefix	%{target_cpu}-linux-
 %if "%{target_cpu}" == "spu"
@@ -88,7 +79,6 @@
 %define program_prefix		%{cross_program_prefix}
 %define program_suffix		%{nil}
 %else
-%define alternative_priority	20%{branch_tag}
 %define cross_prefix		%{nil}
 %define cross_program_prefix	%{nil}
 %define package_suffix		%{branch}
@@ -96,7 +86,6 @@
 %define program_suffix		-%{version}
 %endif
 %endif
-%define _alternativesdir	/etc/alternatives
 %if "%{package_suffix}" == "%{nil}"
 %define _package_suffix		%{nil}
 %else
@@ -105,11 +94,6 @@
 %define gcc40_as_system_compiler 0
 %if %{mdkversion} == 200600
 %define gcc40_as_system_compiler 1
-%endif
-%if !%{system_compiler}
-# XXX even though it's better, we should retain the system behavior
-# and let the user decide
-%define gcj_alternative_priority 15
 %endif
 
 %if %{?snapshot}
@@ -456,8 +440,6 @@ Requires:	%{name}-cpp = %{version}-%{release}
 %if %{libc_shared} && !%{build_monolithic}
 Requires:	%{libgcc_name_orig} >= 3.3.2-5mdk
 %endif
-Requires(post): update-alternatives
-Requires(postun): update-alternatives
 BuildRequires:	gettext, flex, bison
 BuildRequires:	texinfo >= 4.1
 # XXX: Needs a GNU awk recent enough to correctly generate options.h
@@ -546,8 +528,6 @@ Requires:	%{libstdcxx_name_orig}-devel = %{gcc40_version}
 AutoReq:	false
 AutoProv:	false
 %endif
-Requires(post): update-alternatives
-Requires(postun): update-alternatives
 
 %description c++
 This package adds C++ support to the GNU C compiler. It includes support
@@ -817,8 +797,6 @@ Requires:	%{name} = %{version}-%{release}
 Requires:	%{GCJ_TOOLS} = %{version}-%{release}
 Requires:	%{libgcj_name} >= %{version}
 Requires:	%{libgcj_devel_name} >= %{version}
-Requires(post): update-alternatives
-Requires(postun): update-alternatives
 
 %description java
 This package adds experimental support for compiling Java(tm) programs
@@ -842,8 +820,6 @@ Provides:	%{cross_prefix}gcj-tools = %{version}-%{release}
 Requires:	%{libgcj_name} >= %{version}
 Requires:	%{libgcj_devel_name} >= %{version}
 Conflicts:	kaffe < 1.0.7-3mdk
-Requires(post): update-alternatives
-Requires(postun): update-alternatives
 
 %description -n %{GCJ_TOOLS}
 This package includes Java related tools built from gcc %{version}:
@@ -1090,8 +1066,6 @@ Group:		Development/C
 Obsoletes:	gcc%{branch}-cpp
 Provides:	gcc%{branch}-cpp = %{version}-%{release}
 %endif
-Requires(post): update-alternatives
-Requires(postun): update-alternatives
 
 %description cpp
 The C preprocessor is a 'macro processor' which is used automatically
@@ -1761,17 +1735,6 @@ fi
 mv %{buildroot}%{_prefix}/lib/libgcj.spec $FULLPATH/libgcj.spec
 %endif
 
-# Rename jar because it could clash with Kaffe/classpath's if this gcc
-# is primary compiler (aka don't have the -<version> extension)
-%if %{build_java}
-pushd %{buildroot}%{_bindir}
-  for app in %{gcj_alternative_programs} gappletviewer gjarsigner gkeytool; do
-    [[ -f $app ]] && mv -f $app $app-%{version} || :
-    [[ -f $app-%{version} ]] || { echo "Missing $app"; exit 1; }
-  done
-popd
-%endif
-
 # Move <cxxabi.h> to compiler-specific directories
 %if %{build_cxx}
 mkdir -p $FULLPATH/include/bits/
@@ -1824,25 +1787,8 @@ FakeAlternatives() {
   done
 }
 
-# Alternatives provide /lib/cpp and %{_bindir}/cpp
-(cd %{buildroot}%{_bindir}; FakeAlternatives cpp)
 %if !%{build_cross}
 (mkdir -p %{buildroot}/lib; cd %{buildroot}/lib; ln -sf %{_bindir}/cpp cpp)
-%endif
-
-# Alternatives provide /usr/bin/{gfortran,f95}
-%if %{build_fortran}
-(cd %{buildroot}%{_bindir}; FakeAlternatives gfortran f95)
-%endif
-
-# Alternatives provide /usr/bin/c++
-%if %{build_cxx}
-(cd %{buildroot}%{_bindir}; FakeAlternatives c++)
-%endif
-
-# Alternatives provide java programs
-%if %{build_java}
-(cd %{buildroot}%{_bindir}; FakeAlternatives gij %{gcj_alternative_programs})
 %endif
 
 if [[ -z "%{?cross_bootstrap:1}" ]] && [[ "%{libc_shared}" = "1" ]]; then
@@ -2053,26 +1999,6 @@ esac
 %clean
 rm -rf %{buildroot}
 
-%post
-/usr/sbin/update-alternatives --install %{_bindir}/%{cross_program_prefix}gcc %{cross_program_prefix}gcc %{_bindir}/%{program_prefix}gcc-%{version} %{alternative_priority}
-[ -e %{_bindir}/%{cross_program_prefix}gcc ] || /usr/sbin/update-alternatives --auto %{cross_program_prefix}gcc
-
-%postun
-if [ ! -f %{_bindir}/%{cross_program_prefix}gcc-%{version} ]; then
-  /usr/sbin/update-alternatives --remove %{cross_program_prefix}gcc %{_bindir}/%{program_prefix}gcc-%{version}
-fi
-
-%if %{build_cxx}
-%post c++
-/usr/sbin/update-alternatives --install %{_bindir}/%{cross_program_prefix}g++ %{cross_program_prefix}g++ %{_bindir}/%{program_prefix}g++-%{version} %{alternative_priority} --slave %{_bindir}/%{cross_program_prefix}c++ %{cross_program_prefix}c++ %{_bindir}/%{program_prefix}g++-%{version}
-[ -e %{_bindir}/%{cross_program_prefix}g++ ] || /usr/sbin/update-alternatives --auto %{cross_program_prefix}g++
-
-%postun c++
-if [ ! -f %{_bindir}/%{cross_program_prefix}g++-%{version} ]; then
-  /usr/sbin/update-alternatives --remove %{cross_program_prefix}g++ %{_bindir}/%{program_prefix}g++-%{version}
-fi
-%endif
-
 %if %{build_libstdcxx}
 %post -n %{libstdcxx_name} -p /sbin/ldconfig
 %postun -n %{libstdcxx_name} -p /sbin/ldconfig
@@ -2091,78 +2017,6 @@ fi
 
 %post -n %{libgomp_name} -p /sbin/ldconfig
 %postun -n %{libgomp_name} -p /sbin/ldconfig
-
-%post cpp
-/usr/sbin/update-alternatives --install %{_bindir}/%{cross_program_prefix}cpp %{cross_program_prefix}cpp %{_bindir}/%{program_prefix}cpp-%{version} %{alternative_priority} --slave /lib/%{cross_program_prefix}cpp %{cross_program_prefix}lib_cpp %{_bindir}/%{program_prefix}cpp-%{version}
-[ -e %{_bindir}/%{cross_program_prefix}cpp ] || /usr/sbin/update-alternatives --auto %{cross_program_prefix}cpp
-
-%postun cpp
-if [ ! -f %{_bindir}/%{cross_program_prefix}cpp-%{version} ]; then
-  /usr/sbin/update-alternatives --remove %{cross_program_prefix}cpp %{_bindir}/%{program_prefix}cpp-%{version}
-fi
-
-%if %{build_pascal}
-%post gpc
-/usr/sbin/update-alternatives --install %{_bindir}/gpc gpc %{_bindir}/%{program_prefix}gpc-%{version} %{alternative_priority} --slave %{_bindir}/gpidump gpidump %{_bindir}/%{program_prefix}gpidump-%{version}
-[ -e %{_bindir}/gpc ] || /usr/sbin/update-alternatives --auto gpc
-
-%postun gpc
-if [ ! -f %{_bindir}/gpc-%{version} ]; then
-  /usr/sbin/update-alternatives --remove gpc %{_bindir}/%{program_prefix}gpc-%{version}
-fi
-%endif
-
-%if %{build_fortran}
-%post gfortran
-/usr/sbin/update-alternatives --install %{_bindir}/%{cross_program_prefix}gfortran %{cross_program_prefix}gfortran %{_bindir}/%{program_prefix}gfortran-%{version} %{alternative_priority} --slave %{_bindir}/f95 f95 %{_bindir}/%{program_prefix}gfortran-%{version}
-[ -e %{_bindir}/%{cross_program_prefix}gfortran ] || /usr/sbin/update-alternatives --auto %{cross_program_prefix}gfortran
-
-%postun gfortran
-if [ ! -f %{_bindir}/%{cross_program_prefix}gfortran-%{version} ]; then
-  /usr/sbin/update-alternatives --remove %{cross_program_prefix}gfortran %{_bindir}/%{program_prefix}gfortran-%{version}
-fi
-%endif
-
-%if %{build_java}
-%post java
-/usr/sbin/update-alternatives --install %{_bindir}/gcj gcj %{_bindir}/gcj-%{version} %{alternative_priority}
-[ -e %{_bindir}/gcj ] || /usr/sbin/update-alternatives --auto gcj
-
-%postun java
-if [ ! -f %{_bindir}/gcj-%{version} ]; then
-  /usr/sbin/update-alternatives --remove gcj %{_bindir}/gcj-%{version}
-fi
-%endif
-
-%if %{build_java}
-%post -n %{GCJ_TOOLS}
-for app in %{gcj_alternative_programs}; do
-  # Remove binaries if not alternativeszificated yet
-  [ ! -L %{_bindir}/$app ] && /bin/rm -f %{_bindir}/$app
-  # Build slaves list
-  slaves="$slaves --slave %{_bindir}/$app $app %{_bindir}/$app-%{version}"
-done
-/usr/sbin/update-alternatives --install %{_bindir}/gij gij %{_bindir}/gij-%{version} %{gcj_alternative_priority} $slaves
-%endif
-
-%if %{build_java}
-%postun -n %{GCJ_TOOLS}
-if [ ! -f "%{_bindir}/gij-%{version}" ]; then
-  /usr/sbin/update-alternatives --remove gij %{_bindir}/gij-%{version}
-fi
-%endif
-
-%if %{build_java}
-%post -n %{libgcj_devel_name}
-/usr/sbin/update-alternatives --install %{_includedir}/libgcj libgcj %{_includedir}/libgcj-%{version} %{gcj_alternative_priority}
-%endif
-
-%if %{build_java}
-%postun -n %{libgcj_devel_name}
-if [ ! -d %{_includedir}/libgcj-%{version} ]; then
-  /usr/sbin/update-alternatives --remove libgcj %{_includedir}/libgcj-%{version}
-fi
-%endif
 
 %if %{build_java}
 %post -n %{libgcj_name} -p /sbin/ldconfig
