@@ -6,7 +6,7 @@
 %define branch			4.2
 %define branch_tag		%(perl -e 'printf "%%02d%%02d", split(/\\./,shift)' %{branch})
 %define version			4.2.3
-%define snapshot		20071128
+%define snapshot		%nil
 %define release			%{manbo_mkrel 6}
 %define nof_arches		noarch
 %define spu_arches		ppc64
@@ -96,7 +96,7 @@
 %define gcc40_as_system_compiler 1
 %endif
 
-%if %{?snapshot}
+%if "%snapshot" != ""
 %define source_package		gcc-%{branch}-%{snapshot}
 %define source_dir		gcc-%{branch}-%{snapshot}
 %else
