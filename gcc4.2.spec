@@ -476,6 +476,7 @@ necessary for a high-performance and stable development environment.
 This package is required for all other GCC compilers, namely C++,
 Fortran 95, Objective C, Java and Ada 95.
 
+%if "%{name}" == "%{cross_prefix}gcc" && %{libc_shared} && !%{build_monolithic}
 %package -n %{libgcc_name}
 Summary:	GNU C library
 Group:		System/Libraries
@@ -492,10 +493,12 @@ AutoProv:	false
 
 %description -n %{libgcc_name}
 The %{libgcc_name} package contains GCC shared libraries for gcc %{branch}
+%endif
 
 ####################################################################
 # C++ Compiler
 
+%if %{build_cxx}
 %package c++
 Summary:	C++ support for gcc
 Group:		Development/C++
@@ -535,10 +538,12 @@ for most of the current C++ specification, including templates and
 exception handling. It does include the static standard C++
 library and C++ header files; the library for dynamically linking
 programs is available separately.
+%endif
 
 ####################################################################
 # C++ Libraries
 
+%if %{build_libstdcxx} && !%{build_monolithic}
 %package -n %{libstdcxx_name}
 Summary:	GNU C++ library
 Group:		System/Libraries
@@ -598,10 +603,12 @@ AutoProv:	false
 %description -n %{libstdcxx_name_orig}-static-devel
 This is the GNU implementation of the standard C++ libraries.  This
 package includes the static libraries needed for C++ development.
+%endif
 
 ####################################################################
 # Objective C Compiler
 
+%if %{build_objc}
 %package objc
 Summary:	Objective C support for gcc
 Group:		Development/Other
@@ -623,10 +630,12 @@ This package adds Objective C support to the GNU C compiler. Objective
 C is an object oriented derivative of the C language, mainly used on
 systems running NeXTSTEP. This package does not include the standard
 Objective C object library.
+%endif
 
 ####################################################################
 # Objective C++ Compiler
 
+%if %{build_objcp}
 %package objc++
 Summary:	Objective C++ support for gcc
 Group:		Development/Other
@@ -643,10 +652,12 @@ AutoProv:	false
 
 %description objc++
 This package adds Objective C++ support to the GNU C++ compiler.
+%endif
 
 ####################################################################
 # Objective C Libraries
 
+%if %{build_objc}
 %package -n %{libobjc_name}
 Summary:	Objective C runtime libraries
 Group:		System/Libraries
@@ -664,10 +675,12 @@ AutoProv:	false
 
 %description -n %{libobjc_name}
 Runtime libraries for the GNU Objective C Compiler.
+%endif
 
 ####################################################################
 # Pascal Compiler
 
+%if %{build_pascal}
 %package gpc
 Summary:	Pascal support for gcc
 Group:		Development/Other
@@ -690,10 +703,12 @@ language standards and quasi-standards:
   * most of ISO 10206 Extended Pascal,
   * Borland Pascal 7.0,
   * parts of Borland Delphi, Mac Pascal and Pascal-SC (PXSC). 
+%endif
 
 ####################################################################
 # Fortran 95 Compiler
 
+%if %{build_fortran}
 %package gfortran
 Summary:	Fortran 95 support for gcc
 Group:		Development/Other
@@ -721,10 +736,12 @@ AutoProv:	false
 %description gfortran
 This package adds support for compiling Fortran 95 programs with the GNU
 compiler.
+%endif
 
 ####################################################################
 # Fortran 95 Libraries
 
+%if %{build_fortran} && %{libc_shared} && !%{build_monolithic}
 %package -n %{libgfortran_name}
 Summary:	Fortran 95 runtime libraries
 Group:		System/Libraries
@@ -740,10 +757,12 @@ AutoProv:	false
 %description -n %{libgfortran_name}
 This package contains Fortran 95 shared library which is needed to run
 Fortran 95 dynamically linked programs.
+%endif
 
 ####################################################################
 # Ada 95 Compiler
 
+%if %{build_ada}
 %package gnat
 Summary:	Ada 95 support for gcc
 Group:		Development/Other
@@ -761,10 +780,12 @@ This package contains an Ada95 compiler and associated development
 tools based on the GNU gcc technology. Ada95 is the object oriented
 successor of the Ada83 language. To build this package from sources
 you must have installed a binary version to bootstrap the compiler.
+%endif
 
 ####################################################################
 # Ada 95 Libraries
 
+%if %{build_ada} && %{libc_shared}
 %package -n %{libgnat_name}
 Summary:	Ada 95 runtime libraries
 Group:		System/Libraries
@@ -779,10 +800,12 @@ shared libraries.  It also contains the shared libraries for the
 Implementation of the Ada Semantic Interface Specification (ASIS), the
 implementation of Distributed Systems Programming (GLADE) and the
 Posix 1003.5 Binding (Florist).
+%endif
 
 ####################################################################
 # Java Compiler
 
+%if %{build_java}
 %package java
 Summary:	Java support for gcc
 Group:		Development/Java
@@ -940,10 +963,12 @@ Obsoletes: libgcj6-src
 
 %description -n %{libgcj_name_base}-src
 The Java(tm) runtime library sources.
+%endif
 
 ####################################################################
 # FFI headers and libraries
 
+%if %{build_libffi}
 %package -n %{libffi_name}
 Summary:	GCC support library for FFI
 Group:		System/Libraries
@@ -970,10 +995,12 @@ for libffi. The libffi library provides a portable, high level
 programming interface to various calling conventions. This allows a
 programmer to call any function specified by a call interface
 description at run time.
+%endif
 
 ####################################################################
 # mudflap headers and libraries
 
+%if %{build_libmudflap} && %{libc_shared} && !%{build_monolithic}
 %package -n %{libmudflap_name}
 Summary:	GCC mudflap shared support library
 Group:		System/Libraries
@@ -1007,10 +1034,12 @@ mudflap-instrumented programs.
 To instrument a non-threaded program, add `-fmudflap' option to GCC
 and when linking add `-lmudflap'. For threaded programs also add
 `-fmudflapth' and `-lmudflapth'.
+%endif
 
 ####################################################################
 # SSP headers and libraries
 
+%if %{build_libssp} && %{libc_shared} && !%{build_monolithic}
 %package -n %{libssp_name}
 Summary:	GCC SSP shared support library
 Group:		System/Libraries
@@ -1032,6 +1061,7 @@ This package contains headers and static libraries for building
 SSP-instrumented programs.
 
 Refer to the documentation for -fstack-protector.
+%endif
 
 ####################################################################
 # GCC OpenMP headers and library
@@ -1095,6 +1125,7 @@ such a macro processor.
 ####################################################################
 # SPU compilers
 
+%ifarch %{spu_arches}
 %package -n spu-gcc
 Summary:	GNU C Compiler for Cell SPU
 Group:		Development/C
@@ -1112,10 +1143,12 @@ Requires:	%{libstdcxx_name_orig}-devel = %{version}-%{release}
 
 %description -n spu-gcc-c++
 This package contains the C++ compiler for Cell SPU.
+%endif
 
 ####################################################################
 # Documentation
 
+%if %{build_doc}
 %package doc
 Summary:	GCC documentation
 Group:		Development/Other
@@ -1145,6 +1178,7 @@ GCC is a compiler suite aimed at integrating all the optimizations and
 features necessary for a high-performance and stable development
 environment. This package contains the compiler printable
 documentation in PDF.
+%endif
 
 %prep
 %setup -q -n %{source_dir} -a 5
@@ -2004,11 +2038,15 @@ rm -rf %{buildroot}
 %postun -n %{libstdcxx_name} -p /sbin/ldconfig
 %endif
 
+%if "%{name}" == "%{cross_prefix}gcc" && %{libc_shared} && !%{build_monolithic}
 %post -n %{libgcc_name} -p /sbin/ldconfig
 %postun -n %{libgcc_name} -p /sbin/ldconfig
+%endif
 
+%if %{build_libmudflap} && %{libc_shared} && !%{build_monolithic}
 %post -n %{libmudflap_name} -p /sbin/ldconfig
 %postun -n %{libmudflap_name} -p /sbin/ldconfig
+%endif
 
 %if %{build_libssp}
 %post -n %{libssp_name} -p /sbin/ldconfig
@@ -2038,6 +2076,7 @@ rm -rf %{buildroot}
 %postun -n %{libgnat_name} -p /sbin/ldconfig
 %endif
 
+%if %{build_doc}
 %post doc
 %_install_info gcc%{_package_suffix}.info
 %_install_info cpp%{_package_suffix}.info
@@ -2074,6 +2113,7 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc%{_package_suffix}.info
 %endif
 %if %{build_java}
 %_remove_install_info gcj%{_package_suffix}.info
+%endif
 %endif
 
 %files -f %{name}.lang
