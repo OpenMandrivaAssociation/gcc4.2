@@ -2348,6 +2348,7 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc%{_package_suffix}.info
 %endif
 %endif
 
+%if %{build_libgomp}
 %files -n %{libgomp_name}
 %{target_libdir}/libgomp.so.%{libgomp_major}
 %{target_libdir}/libgomp.so.%{libgomp_major}.0.0
@@ -2367,6 +2368,7 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc%{_package_suffix}.info
 %{target_libdir}/libgomp.spec
 %if %isarch %{biarches}
 %{_prefix}/lib/libgomp.spec
+%endif
 %endif
 
 %files cpp -f cpplib.lang
