@@ -68,6 +68,7 @@
 %define package_suffix		%{nil}
 %define program_prefix		%{nil}
 %define program_suffix		%{nil}
+%define program_long_suffix     -%{version}
 %else
 %if %{build_cross}
 %define cross_prefix		cross-%{target_cpu}-
@@ -78,12 +79,14 @@
 %define package_suffix		%{nil}
 %define program_prefix		%{cross_program_prefix}
 %define program_suffix		%{nil}
+%define program_long_suffix	-%{version}
 %else
 %define cross_prefix		%{nil}
 %define cross_program_prefix	%{nil}
 %define package_suffix		%{branch}
 %define program_prefix		%{nil}
-%define program_suffix		-%{version}
+%define program_suffix		%{branch}
+%define program_long_suffix	%{branch}
 %endif
 %endif
 %if "%{package_suffix}" == "%{nil}"
@@ -1565,6 +1568,7 @@ echo "$FULLVER"
 EOF
 chmod 0755 %{buildroot}%{_bindir}/%{program_prefix}gcc%{branch}-version
 
+%if "%{program_suffix}" == ""
 mv %{buildroot}%{_bindir}/cpp %{buildroot}%{_bindir}/cpp-%{version}
 mv %{buildroot}%{_bindir}/gcc %{buildroot}%{_bindir}/gcc-%{version}
 %if %{build_cxx}
@@ -1577,21 +1581,22 @@ mv %{buildroot}%{_bindir}/gfortran %{buildroot}%{_bindir}/gfortran-%{version}
 mv %{buildroot}%{_bindir}/gcj %{buildroot}%{_bindir}/gcj-%{version}
 mv %{buildroot}%{_bindir}/gij %{buildroot}%{_bindir}/gij-%{version}
 %endif
+%endif
 
 # replacing hardlinks with symlinks
-ln -sf gcc-%{version} %{buildroot}%{_bindir}/%{gcc_target_platform}-gcc
-ln -sf gcc-%{version} %{buildroot}%{_bindir}/%{gcc_target_platform}-gcc-%{version}
+ln -sf gcc%{program_long_suffix} %{buildroot}%{_bindir}/%{gcc_target_platform}-gcc%{program_suffix}
+ln -sf gcc%{program_long_suffix} %{buildroot}%{_bindir}/%{gcc_target_platform}-gcc-%{version}
 %if %{build_cxx}
-ln -sf g++-%{version} %{buildroot}%{_bindir}/c++-%{version}
-ln -sf g++-%{version} %{buildroot}%{_bindir}/%{gcc_target_platform}-c++
-ln -sf g++-%{version} %{buildroot}%{_bindir}/%{gcc_target_platform}-g++
+ln -sf g++%{program_long_suffix} %{buildroot}%{_bindir}/c++%{program_long_suffix}
+ln -sf g++%{program_long_suffix} %{buildroot}%{_bindir}/%{gcc_target_platform}-c++%{program_suffix}
+ln -sf g++%{program_long_suffix} %{buildroot}%{_bindir}/%{gcc_target_platform}-g++%{program_suffix}
 %endif
 %if %{build_fortran}
-ln -sf gfortran-%{version} %{buildroot}%{_bindir}/%{gcc_target_platform}-gfortran
+ln -sf gfortran%{program_long_suffix} %{buildroot}%{_bindir}/%{gcc_target_platform}-gfortran%{program_suffix}
 %endif
 %if %{build_java}
-ln -sf gcj-%{version} %{buildroot}%{_bindir}/%{gcc_target_platform}-gcj
-ln -sf gcjh %{buildroot}%{_bindir}/%{gcc_target_platform}-gcjh
+ln -sf gcj%{program_long_suffix} %{buildroot}%{_bindir}/%{gcc_target_platform}-gcj%{program_suffix}
+ln -sf gcjh%{program_suffix} %{buildroot}%{_bindir}/%{gcc_target_platform}-gcjh%{program_suffix}
 %endif
 
 %if %{system_compiler}
@@ -2110,10 +2115,10 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc%{_package_suffix}.info
 %endif
 #
 %{_bindir}/%{program_prefix}gcc%{branch}-version
-%{_bindir}/%{program_prefix}gcc-%{version}
+%{_bindir}/%{program_prefix}gcc%{program_long_suffix}
 %{_bindir}/%{gcc_target_platform}-gcc%{program_suffix}
 %{_bindir}/%{gcc_target_platform}-gcc-%{version}
-%{_bindir}/gccbug
+%{_bindir}/gccbug%{program_suffix}
 %if "%{name}" == "gcc%{package_suffix}"
 %{_bindir}/protoize%{program_suffix}
 %{_bindir}/unprotoize%{program_suffix}
@@ -2347,7 +2352,7 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc%{_package_suffix}.info
 /lib/%{cross_program_prefix}cpp
 %endif
 %ghost %{_bindir}/%{cross_program_prefix}cpp
-%{_bindir}/%{program_prefix}cpp-%{version}
+%{_bindir}/%{program_prefix}cpp%{program_long_suffix}
 %{gcc_libdir}/%{gcc_target_platform}/%{version}/cc1
 
 %if %{build_cxx}
@@ -2358,8 +2363,8 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc%{_package_suffix}.info
 %{_mandir}/man1/%{program_prefix}g++%{program_suffix}.1*
 #
 %ghost %{_bindir}/%{cross_program_prefix}c++
-%{_bindir}/%{program_prefix}g++-%{version}
-%{_bindir}/%{program_prefix}c++-%{version}
+%{_bindir}/%{program_prefix}g++%{program_long_suffix}
+%{_bindir}/%{program_prefix}c++%{program_long_suffix}
 %{_bindir}/%{gcc_target_platform}-g++%{program_suffix}
 %{_bindir}/%{gcc_target_platform}-c++%{program_suffix}
 #
@@ -2544,7 +2549,7 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc%{_package_suffix}.info
 #
 %ghost %{_bindir}/%{cross_program_prefix}gfortran
 %ghost %{_bindir}/%{cross_program_prefix}f95
-%{_bindir}/%{program_prefix}gfortran-%{version}
+%{_bindir}/%{program_prefix}gfortran%{program_long_suffix}
 %{_bindir}/%{gcc_target_platform}-gfortran%{program_suffix}
 #
 %{gcc_libdir}/%{gcc_target_platform}/%{version}/f951
