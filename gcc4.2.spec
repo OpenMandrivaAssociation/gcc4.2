@@ -47,7 +47,7 @@
 %{expand: %{?cross_bootstrap:	%%global build_cross_bootstrap 1}}
 
 # System compiler in MDV 2007
-%if %{mdkversion} >= 200700
+%if %{mdkversion} < 200900
 %define system_compiler		1
 %else
 %define system_compiler		0
@@ -158,8 +158,8 @@
 
 %define build_minimal		0
 %define build_monolithic	0
-%define build_doc		1
-%define build_pdf_doc		1
+%define build_doc		0
+%define build_pdf_doc		0
 %define build_check		1
 %define build_ada		0
 %define gpc_snapshot		20040516
@@ -171,14 +171,14 @@
 %define build_ada		1
 %endif
 %define build_cxx		1
-%define build_libstdcxx		%{build_cxx}
+%define build_libstdcxx		0
 %define build_fortran		1
 %define build_objc		1
 %define build_objcp		1
-%define build_libmudflap	1
-%define build_libgomp           1
-%define build_libffi		1
-%define build_java		1
+%define build_libmudflap	0
+%define build_libgomp           0
+%define build_libffi		0
+%define build_java		0
 %define build_debug		0
 %define build_stdcxxheaders	1
 %if %{gcc40_as_system_compiler}
@@ -395,6 +395,8 @@ Patch125: gcc4-cell-spu.patch
 Patch128: gcc4-ssse3.patch
 # (cjw) disable building of 'nof' libs on ppc
 Patch129: gcc-4.1.2-ppc-soft-float-64bit-double-libs.patch
+
+Patch130: gcc-4.2.3-libiberty-must-not-redeclare-asprintf-on-glibc2.8.patch
 
 # Red Hat patches
 # allow --disable-libjava-multilib to disable multilib for java
@@ -1204,6 +1206,7 @@ documentation in PDF.
 %patch125 -p1 -b .cell-spu
 %patch128 -p1 -b .ssse3
 %patch129 -p1 -b .nonof
+%patch130 -p1 -b .asprintf
 
 # Red Hat patches
 %patch201 -p1 -b .java-nomulti
@@ -2379,7 +2382,6 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc%{_package_suffix}.info
 %if %build_cross || %system_compiler
 /lib/%{cross_program_prefix}cpp
 %endif
-%ghost %{_bindir}/%{cross_program_prefix}cpp
 %{_bindir}/%{program_prefix}cpp%{program_long_suffix}
 %{gcc_libdir}/%{gcc_target_platform}/%{version}/cc1
 
@@ -2390,7 +2392,6 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc%{_package_suffix}.info
 %doc gcc/cp/ChangeLog*
 %{_mandir}/man1/%{program_prefix}g++%{program_suffix}.1*
 #
-%ghost %{_bindir}/%{cross_program_prefix}c++
 %{_bindir}/%{program_prefix}g++%{program_long_suffix}
 %{_bindir}/%{program_prefix}c++%{program_long_suffix}
 %{_bindir}/%{gcc_target_platform}-g++%{program_suffix}
@@ -2551,8 +2552,6 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc%{_package_suffix}.info
 #
 %{_bindir}/gpc-run
 %{_bindir}/binobj
-%ghost %{_bindir}/gpc
-%ghost %{_bindir}/gpidump
 %{_bindir}/%{program_prefix}gpc-%{version}
 %{_bindir}/%{program_prefix}gpidump-%{version}
 #
@@ -2575,8 +2574,6 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc%{_package_suffix}.info
 %doc rpm.doc/gfortran/*
 %{_mandir}/man1/%{program_prefix}gfortran%{program_suffix}.1*
 #
-%ghost %{_bindir}/%{cross_program_prefix}gfortran
-%ghost %{_bindir}/%{cross_program_prefix}f95
 %{_bindir}/%{program_prefix}gfortran%{program_long_suffix}
 %{_bindir}/%{gcc_target_platform}-gfortran%{program_suffix}
 #
@@ -2601,7 +2598,6 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc%{_package_suffix}.info
 %{gcc_libdir}/%{gcc_target_platform}/%{version}/nof/libgfortran.so
 %endif
 %endif
-%{gcc_libdir}/%{gcc_target_platform}/%{version}/finclude/omp*
 %endif
 
 %if %{build_fortran} && %{libc_shared}
@@ -2635,9 +2631,6 @@ if [ "$1" = "0" ];then /sbin/install-info %{_infodir}/gcc%{_package_suffix}.info
 %{_bindir}/gij-%{version}
 %{_bindir}/grmic-%{version}
 %{_bindir}/grmiregistry-%{version}
-%ghost %{_bindir}/gij
-%ghost %{_bindir}/grmic
-%ghost %{_bindir}/grmiregistry
 %{_bindir}/gappletviewer-%{version}
 %{_bindir}/gjarsigner-%{version}
 %{_bindir}/gkeytool-%{version}
