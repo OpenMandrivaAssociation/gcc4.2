@@ -1594,7 +1594,9 @@ ln -sf gcj-%{version} %{buildroot}%{_bindir}/%{gcc_target_platform}-gcj
 ln -sf gcjh %{buildroot}%{_bindir}/%{gcc_target_platform}-gcjh
 %endif
 
+%if %{system_compiler}
 ln -s gcc %{buildroot}%{_bindir}/cc
+%endif
 
 rm -f %{buildroot}%{_infodir}/dir
 
@@ -1804,7 +1806,7 @@ FakeAlternatives() {
   done
 }
 
-%if !%{build_cross}
+%if !%{build_cross} && %{system_compiler}
 (mkdir -p %{buildroot}/lib; cd %{buildroot}/lib; ln -sf %{_bindir}/cpp cpp)
 %endif
 
@@ -1882,14 +1884,14 @@ popd
 
 # Fix info pages
 if [[ "%{name}" = "gcc%{branch}" ]]; then
-  cd %{buildroot}%{_infodir}/
+  pushd %{buildroot}%{_infodir}/
   for f in cpp cppinternals gcc gpc gpcs gfortran gnat-style gnat_rm gnat_ug gcj; do
     if [[ -f "$f.info" ]]; then
       perl -pe "/^START-INFO-DIR-ENTRY/ .. /^END-INFO-DIR-ENTRY/ and s/($f)/\${1}-%{branch}/ig" $f.info > ${f}-%{branch}.info
       rm -f $f.info
     fi
   done
-  cd ..
+  popd
 fi
 
 # Sanitize rpath
@@ -1910,10 +1912,14 @@ for bin in %{buildroot}%{_bindir}/* $FULLPATH/*.so $FULLPATH/ecj1; do
   fi
 done
 
+%if %{system_compiler}
 %define find_lang /usr/lib/rpm/find-lang.sh %buildroot
 %find_lang %{name}
 %find_lang cpplib
 %find_lang libstdc++
+%else
+touch %{name}.lang cpplib.lang libstdc++.lang
+%endif
 
 # Remove unpackaged files
 rm  -f %{buildroot}%{_bindir}/jar
@@ -1966,7 +1972,6 @@ rm %{buildroot}%{target_libdir}/../lib/libffi.*
 %endif
 
 %if !%{system_compiler}
-rm %{buildroot}%{_bindir}/cc
 rm -f %{buildroot}%{_infodir}/gccinstall.info*
 rm -f %{buildroot}%{_infodir}/gccint.info*
 rm -rf %{buildroot}%{_datadir}/locale
