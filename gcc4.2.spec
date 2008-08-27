@@ -1948,6 +1948,32 @@ rm  -f %{buildroot}%{spu_prefix}/lib/*.la
 rm -fr %{buildroot}/%{_datadir}/info/
 %endif
 
+%if %build_cxx && !%system_compiler && !%build_cross
+%if !%{build_stdcxxheaders}
+rm -r %{buildroot}%libstdcxx_includedir
+%endif
+rm %{buildroot}%{target_libdir}/libstdc++.so.%{libstdcxx_major}
+rm %{buildroot}%{target_libdir}/libstdc++.so.%{libstdcxx_major}.0.%{libstdcxx_minor}
+rm %{buildroot}%{gcc_libdir}/%{gcc_target_platform}/%{version}/libstdc++.a
+%if %isarch %biarches
+rm %{buildroot}%{target_libdir}/../lib/libstdc++.so.%{libstdcxx_major}
+rm %{buildroot}%{target_libdir}/../lib/libstdc++.so.%{libstdcxx_major}.0.%{libstdcxx_minor}
+rm %{buildroot}%{gcc_libdir}/%{gcc_target_platform}/%{version}/32/libstdc++.a
+%endif
+%endif
+
+%if !%system_compiler && !%build_cross && %libc_shared
+rm %{buildroot}%{target_slibdir}/libgcc_s-%{version}.so.%{libgcc_major}
+rm %{buildroot}%{target_slibdir}/libgcc_s.so.%{libgcc_major}
+rm %{buildroot}%{target_libdir}/libgcc_s.so
+%if %isarch %{biarches}
+rm %{buildroot}%{target_slibdir32}/libgcc_s-%{version}.so.%{libgcc_major}
+rm %{buildroot}%{target_slibdir32}/libgcc_s.so.%{libgcc_major}
+rm %{buildroot}%{target_libdir}/../lib/libgcc_s.so
+rm %{buildroot}%{target_libdir}/../lib/libgcc_s_32.so
+%endif
+%endif
+
 # the list of files below depend on the files installed on the system.
 # only keeping a fixed list:
 pushd %{buildroot}%{gcc_libdir}/%{gcc_target_platform}/%{version}
