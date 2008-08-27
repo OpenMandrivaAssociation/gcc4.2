@@ -456,9 +456,11 @@ BuildRequires:	autogen
 %if %{system_compiler}
 Obsoletes:	gcc%{branch}
 Provides:	gcc%{branch} = %{version}-%{release}
+%else
+Conflicts:	gcc%{branch} < %{version}-%{release}
 %endif
 %if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc = %{version}
+Requires:	manbo-files-gcc%{program_suffix} = %{version}
 %endif
 %if %{build_pdf_doc}
 BuildRequires:	tetex, tetex-dvips, tetex-latex
@@ -506,10 +508,12 @@ Group:		Development/C++
 %if %{system_compiler}
 Obsoletes:	gcc%{branch}-c++
 Provides:	gcc%{branch}-c++ = %{version}-%{release}
+%else
+Conflicts:	gcc%{branch}-c++ < %{version}-%{release}
 %endif
 Requires:	%{name} = %{version}-%{release}
 %if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc-c++ = %{version}
+Requires:	manbo-files-gcc-c++%{program_suffix} = %{version}
 %endif
 %if %{system_compiler}
 # some day, rpm will be smart enough: %if (%{system_compiler} || %{build_cross}) && !%{build_monolithic}
@@ -569,7 +573,7 @@ project to implement the ISO/IEC 14882:1998 Standard C++ library.
 Summary:	Header files and libraries for C++ development
 Group:		Development/C++
 %if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc = %{version}
+Requires:	manbo-files-gcc%{program_suffix} = %{version}
 %endif
 %if %{libc_shared}
 Requires:	%{libstdcxx_name} = %{version}-%{release}
@@ -718,7 +722,7 @@ Obsoletes:	gcc%{branch}-gfortran
 Provides:	gcc%{branch}-gfortran = %{version}-%{release}
 %endif
 %if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc-gfortran = %{version}
+Requires:	manbo-files-gcc-gfortran%{program_suffix} = %{version}
 %endif
 Obsoletes:	gcc%{branch}-g77
 Requires:	%{name} = %{version}-%{release}
@@ -815,7 +819,7 @@ Obsoletes:	gcc%{branch}-java
 Provides:	gcc%{branch}-java = %{version}-%{release}
 %endif
 %if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc-java = %{version}
+Requires:	manbo-files-gcc-java%{program_suffix} = %{version}
 %endif
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{GCJ_TOOLS} = %{version}-%{release}
@@ -838,7 +842,7 @@ Obsoletes:	%{cross_prefix}gcj%{branch}-tools
 Provides:	%{cross_prefix}gcj%{branch}-tools = %{version}-%{release}
 %endif
 %if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc-java = %{version}
+Requires:	manbo-files-gcc-java%{program_suffix} = %{version}
 %endif
 Provides:	%{cross_prefix}gcj-tools = %{version}-%{release}
 Requires:	%{libgcj_name} >= %{version}
@@ -909,7 +913,7 @@ Requires:	%{libgcj_name} = %{version}-%{release}
 Provides:	%{libgcj_name_orig}%{branch}-devel = %{version}-%{release}
 Provides:	%{libgcj_name_orig}-devel = %{version}-%{release}
 %if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc = %{version}
+Requires:	manbo-files-gcc%{program_suffix} = %{version}
 %endif
 %if %{system_compiler}
 Obsoletes:	libgcj3-devel
@@ -982,7 +986,7 @@ for FFI support.
 Summary:	Development headers and static library for FFI
 Group:		Development/C
 %if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc = %{version}
+Requires:	manbo-files-gcc%{program_suffix} = %{version}
 %endif
 Requires:	%{libffi_name} = %{version}-%{release}
 Provides:	%{libffi_name_orig}%{branch}-devel = %{version}-%{release}
