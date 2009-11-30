@@ -1,3 +1,6 @@
+%define Werror_cflags %nil
+%define _default_patch_fuzz 2
+
 %define _vendor Manbo
 %define _host_vendor manbo
 %define _real_vendor manbo
@@ -7,7 +10,7 @@
 %define branch_tag		%(perl -e 'printf "%%02d%%02d", split(/\\./,shift)' %{branch})
 %define version			4.2.3
 %define snapshot		%nil
-%define release			%{manbo_mkrel 6}
+%define release			%{manbo_mkrel 7}
 %define nof_arches		noarch
 %define spu_arches		ppc64
 %define lsb_arches		i386 x86_64 ia64 ppc ppc64 s390 s390x
@@ -409,6 +412,7 @@ Patch207: gcc4-libltdl-multilib.patch
 # use hash style gnu (faster dynamic linking, cf http://lwn.net/Articles/192624/)
 Patch211: gcc42-hash-style-gnu.patch
 
+Patch212: gcc-4.3.2-CVE-2009-3736.diff
 
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 # Want updated alternatives priorities
@@ -1277,6 +1281,8 @@ perl -pi -e "/bug_report_url/ and s/\"[^\"]+\"/\"<URL:https:\/\/qa.mandriva.com\
 
 # Fix java-ext path
 sed -i -e 's,\$(jardir)/ext,$(jardir)-ext,g' libjava/Makefile.{am,in}
+
+%patch212 -p0 -b .CVE-2009-3736
 
 %build
 # FIXME: extra tools needed
