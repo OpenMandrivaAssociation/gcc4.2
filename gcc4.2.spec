@@ -1,16 +1,12 @@
 %define Werror_cflags %nil
 %define _default_patch_fuzz 2
 
-%define _vendor Manbo
-%define _host_vendor manbo
-%define _real_vendor manbo
-
 %define name			%{cross_prefix}gcc%{package_suffix}
 %define branch			4.2
 %define branch_tag		%(perl -e 'printf "%%02d%%02d", split(/\\./,shift)' %{branch})
 %define version			4.2.3
 %define snapshot		%nil
-%define release			%{manbo_mkrel 7}
+%define release			8
 %define nof_arches		noarch
 %define spu_arches		ppc64
 %define lsb_arches		i386 x86_64 ia64 ppc ppc64 s390 s390x
@@ -159,8 +155,8 @@
 # We now have versioned libstdcxx_includedir, that is c++/<VERSION>/
 %define libstdcxx_includedir	%{target_prefix}/include/c++/%{version}
 
-%define build_minimal		0
-%define build_monolithic	0
+%define build_minimal		1
+%define build_monolithic	1
 %define build_doc		0
 %define build_pdf_doc		0
 %define build_check		1
@@ -171,19 +167,19 @@
 %define build_pascal		1
 %endif
 %if %isarch %{ix86} x86_64 ia64
-%define build_ada		1
+%define build_ada		0
 %endif
-%define build_cxx		1
+%define build_cxx		0
 %define build_libstdcxx		0
-%define build_fortran		1
-%define build_objc		1
-%define build_objcp		1
+%define build_fortran		0
+%define build_objc		0
+%define build_objcp		0
 %define build_libmudflap	0
 %define build_libgomp           0
 %define build_libffi		0
 %define build_java		0
 %define build_debug		0
-%define build_stdcxxheaders	1
+%define build_stdcxxheaders	0
 %if %{gcc40_as_system_compiler}
 %define build_libstdcxx		0
 %define build_libmudflap	0
@@ -463,9 +459,6 @@ Provides:	gcc%{branch} = %{version}-%{release}
 %else
 Conflicts:	gcc%{branch} < %{version}-%{release}
 %endif
-%if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc%{program_suffix} = %{version}
-%endif
 %if %{build_pdf_doc}
 BuildRequires:	tetex, tetex-dvips, tetex-latex
 %endif
@@ -516,9 +509,6 @@ Provides:	gcc%{branch}-c++ = %{version}-%{release}
 Conflicts:	gcc%{branch}-c++ < %{version}-%{release}
 %endif
 Requires:	%{name} = %{version}-%{release}
-%if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc-c++%{program_suffix} = %{version}
-%endif
 %if %{system_compiler}
 # some day, rpm will be smart enough: %if (%{system_compiler} || %{build_cross}) && !%{build_monolithic}
 %if %{libc_shared}
@@ -576,9 +566,6 @@ project to implement the ISO/IEC 14882:1998 Standard C++ library.
 %package -n %{libstdcxx_name_orig}-devel
 Summary:	Header files and libraries for C++ development
 Group:		Development/C++
-%if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc%{program_suffix} = %{version}
-%endif
 %if %{libc_shared}
 Requires:	%{libstdcxx_name} = %{version}-%{release}
 %endif
@@ -725,9 +712,6 @@ Group:		Development/Other
 Obsoletes:	gcc%{branch}-gfortran
 Provides:	gcc%{branch}-gfortran = %{version}-%{release}
 %endif
-%if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc-gfortran%{program_suffix} = %{version}
-%endif
 Obsoletes:	gcc%{branch}-g77
 Requires:	%{name} = %{version}-%{release}
 %if %{libc_shared} && !%{build_monolithic}
@@ -822,9 +806,6 @@ Group:		Development/Java
 Obsoletes:	gcc%{branch}-java
 Provides:	gcc%{branch}-java = %{version}-%{release}
 %endif
-%if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc-java%{program_suffix} = %{version}
-%endif
 Requires:	%{name} = %{version}-%{release}
 Requires:	%{GCJ_TOOLS} = %{version}-%{release}
 Requires:	%{libgcj_name} >= %{version}
@@ -844,9 +825,6 @@ Group:		Development/Java
 %if %{system_compiler}
 Obsoletes:	%{cross_prefix}gcj%{branch}-tools
 Provides:	%{cross_prefix}gcj%{branch}-tools = %{version}-%{release}
-%endif
-%if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc-java%{program_suffix} = %{version}
 %endif
 Provides:	%{cross_prefix}gcj-tools = %{version}-%{release}
 Requires:	%{libgcj_name} >= %{version}
@@ -916,9 +894,6 @@ Requires:	zlib-devel
 Requires:	%{libgcj_name} = %{version}-%{release}
 Provides:	%{libgcj_name_orig}%{branch}-devel = %{version}-%{release}
 Provides:	%{libgcj_name_orig}-devel = %{version}-%{release}
-%if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc%{program_suffix} = %{version}
-%endif
 %if %{system_compiler}
 Obsoletes:	libgcj3-devel
 Obsoletes:	libgcj4-devel
@@ -989,9 +964,6 @@ for FFI support.
 %package -n %{libffi_name_orig}-devel
 Summary:	Development headers and static library for FFI
 Group:		Development/C
-%if "%{_real_vendor}" == "manbo"
-Requires:	manbo-files-gcc%{program_suffix} = %{version}
-%endif
 Requires:	%{libffi_name} = %{version}-%{release}
 Provides:	%{libffi_name_orig}%{branch}-devel = %{version}-%{release}
 Provides:	%{libffi_name_orig}4-devel
@@ -1295,6 +1267,7 @@ OPT_FLAGS=`echo $RPM_OPT_FLAGS|sed -e 's/-fno-rtti//g' -e 's/-fno-exceptions//g'
 %if %{build_debug}
 OPT_FLAGS=`echo "$OPT_FLAGS -g" | sed -e "s/-fomit-frame-pointer//g"`
 %endif
+OPT_FLAGS=`echo $OPT_FLAGS | sed -e 's/-frecord-gcc-switches//g'`
 %if %{build_cross}
 OPT_FLAGS="-O2 -g -pipe"
 %endif
@@ -1426,15 +1399,7 @@ CC="%{__cc}" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFL
 	--with-system-zlib $LIBC_FLAGS $LIBSTDCXX_FLAGS $LIBJAVA_FLAGS $SSP_FLAGS $MUDFLAP_FLAGS $LIBFFI_FLAGS \
 	--disable-werror $LIBGOMP_FLAGS
 touch ../gcc/c-gperf.h
-%if %{build_cross}
 %make
-%else
-# bootstrap-lean is similar to bootstrap except "object files from the stage1
-# and stage2 of the 3-stage bootstrap of the compiler are deleted as soon as
-# they are no longer needed."
-%make bootstrap-lean BOOT_CFLAGS="$OPT_FLAGS"
-
-%endif
 
 %if !%{build_cross}
 # Make protoize
