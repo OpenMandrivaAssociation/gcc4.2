@@ -6,11 +6,16 @@
 %define branch_tag		%(perl -e 'printf "%%02d%%02d", split(/\\./,shift)' %{branch})
 %define version			4.2.3
 %define snapshot		%nil
-%define release			8
+%define release			9
 %define nof_arches		noarch
 %define spu_arches		ppc64
 %define lsb_arches		i386 x86_64 ia64 ppc ppc64 s390 s390x
+%define build_multilib		0
+%if %{build_multilib}
 %define biarches		x86_64 ppc64
+%else
+%define biarches		ppc64
+%endif
 
 # Define libraries major versions
 %define libgcc_major		1
@@ -179,7 +184,7 @@
 %define build_libffi		0
 %define build_java		0
 %define build_debug		0
-%define build_stdcxxheaders	0
+%define build_stdcxxheaders	1
 %if %{gcc40_as_system_compiler}
 %define build_libstdcxx		0
 %define build_libmudflap	0
@@ -280,7 +285,7 @@
 %define build_pdf_doc		0
 %define build_check		0
 %define build_ada		0
-%define build_cxx		0
+%define build_cxx		1
 %define build_fortran		0
 %define build_objc		0
 %define build_objcp		0
@@ -452,6 +457,7 @@ BuildRequires:	%{cross_prefix}%{libc}-devel >= %{libc_version}
 %if %{build_check}
 BuildRequires:	%{cross_prefix}glibc-static-devel
 BuildRequires:	autogen
+BuildRequires:	libtool
 %endif
 %if %{system_compiler}
 Obsoletes:	gcc%{branch}
@@ -1397,8 +1403,24 @@ CC="%{__cc}" CFLAGS="$OPT_FLAGS" CXXFLAGS="$OPT_FLAGS" XCFLAGS="$OPT_FLAGS" TCFL
 	--enable-languages="$LANGUAGES" $PROGRAM_PREFIX $PROGRAM_SUFFIX \
 	--build=%{_target_platform} --host=%{_target_platform} $CROSS_FLAGS $TARGET_FLAGS \
 	--with-system-zlib $LIBC_FLAGS $LIBSTDCXX_FLAGS $LIBJAVA_FLAGS $SSP_FLAGS $MUDFLAP_FLAGS $LIBFFI_FLAGS \
-	--disable-werror $LIBGOMP_FLAGS
+	--disable-werror $LIBGOMP_FLAGS \
+%if %{build_multilib}
+	--enable-multilib
+%else
+	--disable-multilib
+%endif
 touch ../gcc/c-gperf.h
+# ugly hack to get a compatibility package built...
+%make || :
+(cd %{gcc_target_platform}/libstdc++-v3;
+ rm -f libtool;
+ ln -sf %{_bindir}/libtool .;
+  %if %isarch %{biarches}
+    cd ../32/libstdc++-v3;
+    rm -f libtool;
+     ln -sf %{_bindir}/libtool .;
+  %endif
+)
 %make
 
 %if !%{build_cross}
