@@ -457,8 +457,8 @@ BuildRequires:	%{cross_prefix}%{libc}-devel >= %{libc_version}
 %if %{build_check}
 BuildRequires:	%{cross_prefix}glibc-static-devel
 BuildRequires:	autogen
-BuildRequires:	libtool
 %endif
+BuildRequires:	libtool
 %if %{system_compiler}
 Obsoletes:	gcc%{branch}
 Provides:	gcc%{branch} = %{version}-%{release}
