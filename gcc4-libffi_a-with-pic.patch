@@ -1,0 +1,20 @@
+--- gcc-4.0.4/libffi/Makefile.am.libffi_a-with-pic	2005-11-03 15:50:55.000000000 +0100
++++ gcc-4.0.4/libffi/Makefile.am	2006-03-15 14:42:36.000000000 +0100
+@@ -145,5 +145,5 @@ AM_CFLAGS = -Wall -g -fexceptions
+ 
+ libffi_la_LDFLAGS = -version-info `grep -v '^\#' $(srcdir)/libtool-version`
+ 
+-AM_CPPFLAGS = -I. -I$(top_srcdir)/include -Iinclude -I$(top_srcdir)/src
++AM_CPPFLAGS = -I. -I$(top_srcdir)/include -Iinclude -I$(top_srcdir)/src -prefer-pic
+ AM_CCASFLAGS = $(AM_CPPFLAGS)
+--- gcc-4.0.4/libffi/Makefile.in.libffi_a-with-pic	2005-11-03 15:50:55.000000000 +0100
++++ gcc-4.0.4/libffi/Makefile.in	2006-03-15 14:42:28.000000000 +0100
+@@ -410,7 +410,7 @@ libffi_convenience_la_SOURCES = $(libffi
+ nodist_libffi_convenience_la_SOURCES = $(nodist_libffi_la_SOURCES)
+ AM_CFLAGS = -Wall -g -fexceptions
+ libffi_la_LDFLAGS = -version-info `grep -v '^\#' $(srcdir)/libtool-version`
+-AM_CPPFLAGS = -I. -I$(top_srcdir)/include -Iinclude -I$(top_srcdir)/src
++AM_CPPFLAGS = -I. -I$(top_srcdir)/include -Iinclude -I$(top_srcdir)/src -prefer-pic
+ AM_CCASFLAGS = $(AM_CPPFLAGS)
+ all: fficonfig.h
+ 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

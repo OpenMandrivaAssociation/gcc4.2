@@ -1,0 +1,12 @@
+--- gcc-4.1.2/gcc/config/rs6000/t-ppcos.64bit-soft-double	2006-02-19 11:25:31.000000000 +0100
++++ gcc-4.1.2/gcc/config/rs6000/t-ppcos	2007-01-16 19:47:47.565801481 +0100
+@@ -1,7 +1,7 @@
+ # Multilibs for a powerpc hosted ELF target (linux, SVR4)
+ 
+-MULTILIB_OPTIONS	= msoft-float
+-MULTILIB_DIRNAMES	= nof
++MULTILIB_OPTIONS	= 
++MULTILIB_DIRNAMES	= 
+ MULTILIB_EXTRA_OPTS	= fPIC mstrict-align
+ MULTILIB_EXCEPTIONS	= 
+ 

@@ -1,0 +1,3071 @@
+2006-12-05  H.J. Lu  <hongjiu.lu@intel.com>
+
+	* gcc.dg/i386-cpuid.h (bit_SSSE3): New.
+
+	* gcc.target/i386/ssse3-pabsb.c: New file.
+	* gcc.target/i386/ssse3-pabsd.c: Likewise.
+	* gcc.target/i386/ssse3-pabsw.c: Likewise.
+	* gcc.target/i386/ssse3-palignr.c: Likewise.
+	* gcc.target/i386/ssse3-phaddd.c: Likewise.
+	* gcc.target/i386/ssse3-phaddsw.c: Likewise.
+	* gcc.target/i386/ssse3-phaddw.c: Likewise.
+	* gcc.target/i386/ssse3-phsubd.c: Likewise.
+	* gcc.target/i386/ssse3-phsubsw.c: Likewise.
+	* gcc.target/i386/ssse3-phsubw.c: Likewise.
+	* gcc.target/i386/ssse3-pmaddubsw.c: Likewise.
+	* gcc.target/i386/ssse3-pmulhrsw.c: Likewise.
+	* gcc.target/i386/ssse3-pshufb.c: Likewise.
+	* gcc.target/i386/ssse3-psignb.c: Likewise.
+	* gcc.target/i386/ssse3-psignd.c: Likewise.
+	* gcc.target/i386/ssse3-psignw.c: Likewise.
+	* gcc.target/i386/ssse3-vals.h: Likewise.
+
+2006-10-22  H.J. Lu  <hongjiu.lu@intel.com>
+ 
+	* config/i386/tmmintrin.h: Remove the duplicated content.
+ 
+2006-10-22  H.J. Lu  <hongjiu.lu@intel.com>
+ 
+	* config.gcc (i[34567]86-*-*): Add tmmintrin.h to extra_headers.
+	(x86_64-*-*): Likewise.
+ 
+	* config/i386/i386.c (pta_flags): Add PTA_SSSE3.
+	(override_options): Check SSSE3.
+	(ix86_builtins): Add IX86_BUILTIN_PHADDW, IX86_BUILTIN_PHADDD,
+	IX86_BUILTIN_PHADDSW, IX86_BUILTIN_PHSUBW, IX86_BUILTIN_PHSUBD,
+	IX86_BUILTIN_PHSUBSW, IX86_BUILTIN_PMADDUBSW,
+	IX86_BUILTIN_PMULHRSW, IX86_BUILTIN_PSHUFB,
+	IX86_BUILTIN_PSIGNB, IX86_BUILTIN_PSIGNW, IX86_BUILTIN_PSIGND,
+	IX86_BUILTIN_PALIGNR, IX86_BUILTIN_PABSB, IX86_BUILTIN_PABSW,
+	IX86_BUILTIN_PABSD, IX86_BUILTIN_PHADDW128,
+	IX86_BUILTIN_PHADDD128, IX86_BUILTIN_PHADDSW128,
+	IX86_BUILTIN_PHSUBW128, IX86_BUILTIN_PHSUBD128,
+	IX86_BUILTIN_PHSUBSW128, IX86_BUILTIN_PMADDUBSW128,
+	IX86_BUILTIN_PMULHRSW128, IX86_BUILTIN_PSHUFB128,
+	IX86_BUILTIN_PSIGNB128, IX86_BUILTIN_PSIGNW128,
+	IX86_BUILTIN_PSIGND128, IX86_BUILTIN_PALIGNR128,
+	IX86_BUILTIN_PABSB128, IX86_BUILTIN_PABSW128 and
+	IX86_BUILTIN_PABSD128.
+	(bdesc_2arg): Add SSSE3.
+	(bdesc_1arg): Likewise.
+	(ix86_init_mmx_sse_builtins): Support SSSE3.
+	(ix86_expand_builtin): Likewise.
+	* config/i386/i386.h (TARGET_CPU_CPP_BUILTINS): Likewise.
+ 
+	* config/i386/i386.md (UNSPEC_PSHUFB): New.
+	(UNSPEC_PSIGN): Likewise.
+	(UNSPEC_PALIGNR): Likewise.
+	Include mmx.md before sse.md.
+ 
+	* config/i386/i386.opt: Add -mssse3.
+ 
+	* config/i386/sse.md (ssse3_phaddwv8hi3): New pattern for SSSE3.
+	(ssse3_phaddwv4hi3): Likewise.
+	(ssse3_phadddv4si3): Likewise.
+	(ssse3_phadddv2si3): Likewise.
+	(ssse3_phaddswv8hi3): Likewise.
+	(ssse3_phaddswv4hi3): Likewise.
+	(ssse3_phsubwv8hi3): Likewise.
+	(ssse3_phsubwv4hi3): Likewise.
+	(ssse3_phsubdv4si3): Likewise.
+	(ssse3_phsubdv2si3): Likewise.
+	(ssse3_phsubswv8hi3): Likewise.
+	(ssse3_phsubswv4hi3): Likewise.
+	(ssse3_pmaddubswv8hi3): Likewise.
+	(ssse3_pmaddubswv4hi3): Likewise.
+	(ssse3_pmulhrswv8hi3): Likewise.
+	(ssse3_pmulhrswv4hi3): Likewise.
+	(ssse3_pshufbv16qi3): Likewise.
+	(ssse3_pshufbv8qi3): Likewise.
+	(ssse3_psign<mode>3): Likewise.
+	(ssse3_psign<mode>3): Likewise.
+	(ssse3_palignrti): Likewise.
+	(ssse3_palignrdi): Likewise.
+	(abs<mode>2): Likewise.
+	(abs<mode>2): Likewise.
+ 
+	* config/i386/tmmintrin.h: New file.
+ 
+	* doc/extend.texi: Document SSSE3 built-in functions.
+ 
+	* doc/invoke.texi: Document -mssse3/-mno-ssse3 switches.
+
+--- gcc-4.1.2/gcc/doc/extend.texi.ssse3	2007-01-10 10:11:34.000000000 +0100
++++ gcc-4.1.2/gcc/doc/extend.texi	2007-01-11 13:37:02.000000000 +0100
+@@ -6876,6 +6876,52 @@ The following built-in functions are ava
+ Generates the @code{movddup} machine instruction as a load from memory.
+ @end table
+ 
++The following built-in functions are available when @option{-mssse3} is used.
++All of them generate the machine instruction that is part of the name
++with MMX registers.
++
++@smallexample
++v2si __builtin_ia32_phaddd (v2si, v2si)
++v4hi __builtin_ia32_phaddw (v4hi, v4hi)
++v4hi __builtin_ia32_phaddsw (v4hi, v4hi)
++v2si __builtin_ia32_phsubd (v2si, v2si)
++v4hi __builtin_ia32_phsubw (v4hi, v4hi)
++v4hi __builtin_ia32_phsubsw (v4hi, v4hi)
++v8qi __builtin_ia32_pmaddubsw (v8qi, v8qi)
++v4hi __builtin_ia32_pmulhrsw (v4hi, v4hi)
++v8qi __builtin_ia32_pshufb (v8qi, v8qi)
++v8qi __builtin_ia32_psignb (v8qi, v8qi)
++v2si __builtin_ia32_psignd (v2si, v2si)
++v4hi __builtin_ia32_psignw (v4hi, v4hi)
++long long __builtin_ia32_palignr (long long, long long, int)
++v8qi __builtin_ia32_pabsb (v8qi)
++v2si __builtin_ia32_pabsd (v2si)
++v4hi __builtin_ia32_pabsw (v4hi)
++@end smallexample
++
++The following built-in functions are available when @option{-mssse3} is used.
++All of them generate the machine instruction that is part of the name
++with SSE registers.
++
++@smallexample
++v4si __builtin_ia32_phaddd128 (v4si, v4si)
++v8hi __builtin_ia32_phaddw128 (v8hi, v8hi)
++v8hi __builtin_ia32_phaddsw128 (v8hi, v8hi)
++v4si __builtin_ia32_phsubd128 (v4si, v4si)
++v8hi __builtin_ia32_phsubw128 (v8hi, v8hi)
++v8hi __builtin_ia32_phsubsw128 (v8hi, v8hi)
++v16qi __builtin_ia32_pmaddubsw128 (v16qi, v16qi)
++v8hi __builtin_ia32_pmulhrsw128 (v8hi, v8hi)
++v16qi __builtin_ia32_pshufb128 (v16qi, v16qi)
++v16qi __builtin_ia32_psignb128 (v16qi, v16qi)
++v4si __builtin_ia32_psignd128 (v4si, v4si)
++v8hi __builtin_ia32_psignw128 (v8hi, v8hi)
++v2di __builtin_ia32_palignr (v2di, v2di, int)
++v16qi __builtin_ia32_pabsb128 (v16qi)
++v4si __builtin_ia32_pabsd128 (v4si)
++v8hi __builtin_ia32_pabsw128 (v8hi)
++@end smallexample
++
+ The following built-in functions are available when @option{-m3dnow} is used.
+ All of them generate the machine instruction that is part of the name.
+ 
+--- gcc-4.1.2/gcc/doc/invoke.texi.ssse3	2007-01-10 10:11:34.000000000 +0100
++++ gcc-4.1.2/gcc/doc/invoke.texi	2007-01-11 13:37:02.000000000 +0100
+@@ -522,7 +522,7 @@ Objective-C and Objective-C++ Dialects}.
+ -mno-fp-ret-in-387  -msoft-float  -msvr3-shlib @gol
+ -mno-wide-multiply  -mrtd  -malign-double @gol
+ -mpreferred-stack-boundary=@var{num} @gol
+--mmmx  -msse  -msse2 -msse3 -m3dnow @gol
++-mmmx  -msse  -msse2 -msse3 -mssse3 -m3dnow @gol
+ -mthreads  -mno-align-stringops  -minline-all-stringops @gol
+ -mpush-args  -maccumulate-outgoing-args  -m128bit-long-double @gol
+ -m96bit-long-double  -mregparm=@var{num}  -msseregparm @gol
+@@ -9341,6 +9341,8 @@ preferred alignment to @option{-mpreferr
+ @itemx -mno-sse2
+ @item -msse3
+ @itemx -mno-sse3
++@item -mssse3
++@itemx -mno-ssse3
+ @item -m3dnow
+ @itemx -mno-3dnow
+ @opindex mmmx
+@@ -9350,9 +9352,10 @@ preferred alignment to @option{-mpreferr
+ @opindex m3dnow
+ @opindex mno-3dnow
+ These switches enable or disable the use of instructions in the MMX,
+-SSE, SSE2 or 3DNow! extended instruction sets.  These extensions are
+-also available as built-in functions: see @ref{X86 Built-in Functions},
+-for details of the functions enabled and disabled by these switches.
++SSE, SSE2, SSE3, SSSE3 or 3DNow! extended instruction sets.
++These extensions are also available as built-in functions: see
++@ref{X86 Built-in Functions}, for details of the functions enabled and
++disabled by these switches.
+ 
+ To have SSE/SSE2 instructions generated automatically from floating-point
+ code (as opposed to 387 instructions), see @option{-mfpmath=sse}.
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-pabsb.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,82 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_pabsb (int *i1, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  *(__m64 *) r = _mm_abs_pi8 (t1);
++  _mm_empty ();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_pabsb128 (int *i1, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  *(__m128i *) r = _mm_abs_epi8 (t1);
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result (int *i1, int *r)
++{
++  char *b1 = (char *) i1;
++  char *bout = (char *) r;
++  int i;
++
++  for (i = 0; i < 16; i++)
++    if (b1[i] < 0)
++      bout[i] = -b1[i];
++    else
++      bout[i] = b1[i];
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 4)
++    {
++      /* Manually compute the result */
++      compute_correct_result(&vals[i + 0], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_pabsb (&vals[i + 0], &r[0]);
++      ssse3_test_pabsb (&vals[i + 2], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Run the 128-bit tests */
++      ssse3_test_pabsb128 (&vals[i + 0], r);
++      fail += chk_128 (ck, r);
++    }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-pabsd.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,80 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_pabsd (int *i1, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  *(__m64 *) r = _mm_abs_pi32 (t1);
++  _mm_empty ();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_pabsd128 (int *i1, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  *(__m128i *) r = _mm_abs_epi32 (t1);
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result (int *i1, int *r)
++{
++  int i;
++
++  for (i = 0; i < 4; i++)
++    if (i1[i] < 0)
++      r[i] = -i1[i];
++    else
++      r[i] = i1[i];
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 4)
++    {
++      /* Manually compute the result */
++      compute_correct_result(&vals[i + 0], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_pabsd (&vals[i + 0], &r[0]);
++      ssse3_test_pabsd (&vals[i + 2], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Run the 128-bit tests */
++      ssse3_test_pabsd128 (&vals[i + 0], r);
++      fail += chk_128(ck, r);
++    }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-pabsw.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,82 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_pabsw (int *i1, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  *(__m64 *) r = _mm_abs_pi16 (t1);
++  _mm_empty ();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_pabsw128 (int *i1, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  *(__m128i *) r = _mm_abs_epi16 (t1);
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result (int *i1, int *r)
++{
++  short *s1 = (short *) i1;
++  short *sout = (short *) r;
++  int i;
++
++  for (i = 0; i < 8; i++)
++    if (s1[i] < 0)
++      sout[i] = -s1[i];
++    else
++      sout[i] = s1[i];
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 4)
++    {
++      /* Manually compute the result */
++      compute_correct_result (&vals[i + 0], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_pabsw (&vals[i + 0], &r[0]);
++      ssse3_test_pabsw (&vals[i + 2], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Run the 128-bit tests */
++      ssse3_test_pabsw128 (&vals[i + 0], r);
++      fail += chk_128 (ck, r);
++    }
++  
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-palignr.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,278 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <string.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_palignr (int *i1, int *i2, unsigned int imm, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  __m64 t2 = *(__m64 *) i2;
++
++  switch (imm)
++    {
++    case 0:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 0);
++      break;
++    case 1:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 1);
++      break;
++    case 2:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 2);
++      break;
++    case 3:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 3);
++      break;
++    case 4:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 4);
++      break;
++    case 5:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 5);
++      break;
++    case 6:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 6);
++      break;
++    case 7:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 7);
++      break;
++    case 8:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 8);
++      break;
++    case 9:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 9);
++      break;
++    case 10:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 10);
++      break;
++    case 11:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 11);
++      break;
++    case 12:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 12);
++      break;
++    case 13:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 13);
++      break;
++    case 14:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 14);
++      break;
++    case 15:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 15);
++      break;
++    default:
++      *(__m64 *) r = _mm_alignr_pi8 (t1, t2, 16);
++      break;
++    }
++
++   _mm_empty();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_palignr128 (int *i1, int *i2, unsigned int imm, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  __m128i t2 = *(__m128i *) i2;
++
++  switch (imm)
++    {
++    case 0:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 0);
++      break;
++    case 1:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 1);
++      break;
++    case 2:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 2);
++      break;
++    case 3:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 3);
++      break;
++    case 4:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 4);
++      break;
++    case 5:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 5);
++      break;
++    case 6:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 6);
++      break;
++    case 7:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 7);
++      break;
++    case 8:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 8);
++      break;
++    case 9:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 9);
++      break;
++    case 10:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 10);
++      break;
++    case 11:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 11);
++      break;
++    case 12:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 12);
++      break;
++    case 13:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 13);
++      break;
++    case 14:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 14);
++      break;
++    case 15:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 15);
++      break;
++    case 16:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 16);
++      break;
++    case 17:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 17);
++      break;
++    case 18:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 18);
++      break;
++    case 19:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 19);
++      break;
++    case 20:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 20);
++      break;
++    case 21:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 21);
++      break;
++    case 22:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 22);
++      break;
++    case 23:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 23);
++      break;
++    case 24:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 24);
++      break;
++    case 25:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 25);
++      break;
++    case 26:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 26);
++      break;
++    case 27:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 27);
++      break;
++    case 28:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 28);
++      break;
++    case 29:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 29);
++      break;
++    case 30:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 30);
++      break;
++    case 31:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 31);
++      break;
++    default:
++      *(__m128i *) r = _mm_alignr_epi8 (t1, t2, 32);
++      break;
++    }
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result_128 (int *i1, int *i2, unsigned int imm, int *r)
++{
++  char buf [32];
++  char *bout = (char *) r;
++  int i;
++
++  memcpy (&buf[0], i2, 16);
++  memcpy (&buf[16], i1, 16);
++
++  for (i = 0; i < 16; i++)
++    if (imm >= 32 || imm + i >= 32)
++      bout[i] = 0;
++    else
++      bout[i] = buf[imm + i];
++}
++
++static void
++compute_correct_result_64 (int *i1, int *i2, unsigned int imm, int *r)
++{
++  char buf [16];
++  char *bout = (char *)r;
++  int i;
++
++  /* Handle the first half */
++  memcpy (&buf[0], i2, 8);
++  memcpy (&buf[8], i1, 8);
++
++  for (i = 0; i < 8; i++)
++    if (imm >= 16 || imm + i >= 16)
++      bout[i] = 0;
++    else
++      bout[i] = buf[imm + i];
++
++  /* Handle the second half */
++  memcpy (&buf[0], &i2[2], 8);
++  memcpy (&buf[8], &i1[2], 8);
++
++  for (i = 0; i < 8; i++)
++    if (imm >= 16 || imm + i >= 16)
++      bout[i + 8] = 0;
++    else
++      bout[i + 8] = buf[imm + i];
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  unsigned int imm;
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 8)
++    for (imm = 0; imm < 100; imm++)
++      {
++	/* Manually compute the result */
++	compute_correct_result_64 (&vals[i + 0], &vals[i + 4], imm, ck);
++
++	/* Run the 64-bit tests */
++	ssse3_test_palignr (&vals[i + 0], &vals[i + 4], imm, &r[0]);
++	ssse3_test_palignr (&vals[i + 2], &vals[i + 6], imm, &r[2]);
++	fail += chk_128 (ck, r);
++
++	/* Recompute the results for 128-bits */
++	compute_correct_result_128 (&vals[i + 0], &vals[i + 4], imm, ck);
++
++	/* Run the 128-bit tests */
++	ssse3_test_palignr128 (&vals[i + 0], &vals[i + 4], imm, r);
++	fail += chk_128 (ck, r);
++      }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-phaddd.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,82 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_phaddd (int *i1, int *i2, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  __m64 t2 = *(__m64 *) i2;
++  *(__m64 *) r = _mm_hadd_pi32 (t1, t2);
++  _mm_empty();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_phaddd128 (int *i1, int *i2, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  __m128i t2 = *(__m128i *) i2;
++  *(__m128i *) r = _mm_hadd_epi32 (t1, t2);
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result(int *i1, int *i2, int *r)
++{
++  int i;
++
++  for (i = 0; i < 2; i++)
++    r[i] = i1[2 * i] + i1[2 * i + 1];
++  for (i = 0; i < 2; i++)
++    r[i + 2] = i2[2 * i] + i2[2 * i + 1];
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++
++  for (i = 0; i < 256; i += 8)
++    {
++      /* Manually compute the result */
++      compute_correct_result (&vals[i + 0], &vals[i + 4], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_phaddd (&vals[i + 0], &vals[i + 2], &r[0]);
++      ssse3_test_phaddd (&vals[i + 4], &vals[i + 6], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Run the 128-bit tests */
++      ssse3_test_phaddd128 (&vals[i + 0], &vals[i + 4], r);
++      fail += chk_128 (ck, r);
++    }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-phaddsw.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,96 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_phaddsw (int *i1, int *i2, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  __m64 t2 = *(__m64 *) i2;
++  *(__m64 *) r = _mm_hadds_pi16 (t1, t2);
++  _mm_empty ();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_phaddsw128 (int *i1, int *i2, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  __m128i t2 = *(__m128i *) i2;
++ *(__m128i *) r = _mm_hadds_epi16 (t1, t2);
++}
++
++static short
++signed_saturate_to_word (int x)
++{
++  if (x > (int) 0x7fff)
++    return 0x7fff;
++
++  if (x < (int) 0xffff8000)
++    return 0x8000;
++
++  return (short) x;
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result (int *i1, int *i2, int *r)
++{
++  short *s1 = (short *) i1;
++  short *s2 = (short *) i2;
++  short *sout = (short *) r;
++  int i;
++
++  for (i = 0; i < 4; i++)
++    sout[i] = signed_saturate_to_word(s1[2 * i] + s1[2 * i + 1]);
++  for (i = 0; i < 4; i++)
++    sout[i + 4] = signed_saturate_to_word(s2[2 * i] + s2[2 * i + 1]);
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 8)
++    {
++      /* Manually compute the result */
++      compute_correct_result (&vals[i + 0], &vals[i + 4], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_phaddsw (&vals[i + 0], &vals[i + 2], &r[0]);
++      ssse3_test_phaddsw (&vals[i + 4], &vals[i + 6], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Run the 128-bit tests */
++      ssse3_test_phaddsw128 (&vals[i + 0], &vals[i + 4], r);
++      fail += chk_128 (ck, r);
++    }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-phaddw.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,85 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_phaddw (int *i1, int *i2, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  __m64 t2 = *(__m64 *) i2;
++  *(__m64 *) r = _mm_hadd_pi16 (t1, t2);
++  _mm_empty ();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_phaddw128 (int *i1, int *i2, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  __m128i t2 = *(__m128i *) i2;
++  *(__m128i *) r = _mm_hadd_epi16 (t1, t2);
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result(int *i1, int *i2, int *r)
++{
++  short *s1 = (short *) i1;
++  short *s2 = (short *) i2;
++  short *sout = (short *) r;
++  int i;
++
++  for (i = 0; i < 4; i++)
++    sout[i] = s1[2 * i] + s1[2 * i + 1];
++
++  for (i = 0; i < 4; i++)
++    sout[i + 4] = s2[2 * i] + s2[2 * i + 1];
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 8)
++    {
++      /* Manually compute the result */
++      compute_correct_result (&vals[i + 0], &vals[i + 4], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_phaddw (&vals[i + 0], &vals[i + 2], &r[0]);
++      ssse3_test_phaddw (&vals[i + 4], &vals[i + 6], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Run the 128-bit tests */
++      ssse3_test_phaddw128 (&vals[i + 0], &vals[i + 4], r);
++      fail += chk_128 (ck, r);
++    }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-phsubd.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,81 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_phsubd (int *i1, int *i2, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  __m64 t2 = *(__m64 *) i2;
++  *(__m64 *) r = _mm_hsub_pi32(t1, t2);
++  _mm_empty ();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_phsubd128 (int *i1, int *i2, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  __m128i t2 = *(__m128i *) i2;
++  *(__m128i *) r = _mm_hsub_epi32 (t1, t2);
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result (int *i1, int *i2, int *r)
++{
++  int i;
++
++  for (i = 0; i < 2; i++)
++    r[i] = i1[2 * i] - i1[2 * i + 1];
++  for (i = 0; i < 2; i++)
++    r[i + 2] = i2[2 * i] - i2[2 * i + 1];
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 8)
++    {
++      /* Manually compute the result */
++      compute_correct_result (&vals[i + 0], &vals[i + 4], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_phsubd (&vals[i + 0], &vals[i + 2], &r[0]);
++      ssse3_test_phsubd (&vals[i + 4], &vals[i + 6], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Run the 128-bit tests */
++      ssse3_test_phsubd128 (&vals[i + 0], &vals[i + 4], r);
++      fail += chk_128 (ck, r);
++    }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-phsubsw.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,99 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_phsubsw (int *i1, int *i2, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  __m64 t2 = *(__m64 *) i2;
++
++  *(__m64 *) r = _mm_hsubs_pi16 (t1, t2);
++
++  _mm_empty ();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_phsubsw128 (int *i1, int *i2, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  __m128i t2 = *(__m128i *) i2;
++  *(__m128i *) r = _mm_hsubs_epi16 (t1, t2);
++}
++
++static short
++signed_saturate_to_word (int x)
++{
++  if (x > (int )0x7fff)
++    return 0x7fff;
++
++  if (x < (int) 0xffff8000)
++    return 0x8000;
++
++  return (short)x;
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result (int *i1, int *i2, int *r)
++{
++  short *s1 = (short *) i1;
++  short *s2 = (short *) i2;
++  short *sout = (short *) r;
++  int i;
++
++  for (i = 0; i < 4; i++)
++    sout[i] = signed_saturate_to_word (s1[2 * i] - s1[2 * i + 1]);
++
++  for (i = 0; i < 4; i++)
++    sout[i + 4] = signed_saturate_to_word (s2[2 * i] - s2[2 * i + 1]);
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 8)
++    {
++      /* Manually compute the result */
++      compute_correct_result (&vals[i + 0], &vals[i + 4], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_phsubsw (&vals[i + 0], &vals[i + 2], &r[0]);
++      ssse3_test_phsubsw (&vals[i + 4], &vals[i + 6], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Run the 128-bit tests */
++      ssse3_test_phsubsw128 (&vals[i + 0], &vals[i + 4], r);
++      fail += chk_128 (ck, r);
++    }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-phsubw.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,85 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_phsubw (int *i1, int *i2, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  __m64 t2 = *(__m64 *) i2;
++  *(__m64 *) r = _mm_hsub_pi16 (t1, t2);
++  _mm_empty ();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_phsubw128 (int *i1, int *i2, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  __m128i t2 = *(__m128i *) i2;
++
++  *(__m128i *) r = _mm_hsub_epi16 (t1, t2);
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result (int *i1, int *i2, int *r)
++{
++  short *s1 = (short *) i1;
++  short *s2 = (short *) i2;
++  short *sout = (short *) r;
++  int i;
++
++  for (i = 0; i < 4; i++)
++    sout[i] = s1[2 * i] - s1[2 * i + 1];
++  for (i = 0; i < 4; i++)
++    sout[i + 4] = s2[2 * i] - s2[2 * i + 1];
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 8)
++    {
++      /* Manually compute the result */
++      compute_correct_result (&vals[i + 0], &vals[i + 4], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_phsubw (&vals[i + 0], &vals[i + 2], &r[0]);
++      ssse3_test_phsubw (&vals[i + 4], &vals[i + 6], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Run the 128-bit tests */
++      ssse3_test_phsubw128 (&vals[i + 0], &vals[i + 4], r);
++      fail += chk_128 (ck, r);
++    }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-pmaddubsw.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,99 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_pmaddubsw (int *i1, int *i2, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  __m64 t2 = *(__m64 *) i2;
++  *(__m64 *) r = _mm_maddubs_pi16 (t1, t2);
++  _mm_empty ();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_pmaddubsw128 (int *i1, int *i2, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  __m128i t2 = *(__m128i *) i2;
++  *(__m128i *) r = _mm_maddubs_epi16 (t1, t2);
++}
++
++static short
++signed_saturate_to_word(int x)
++{
++  if (x > (int) 0x7fff)
++    return 0x7fff;
++
++  if (x < (int) 0xffff8000)
++    return 0x8000;
++
++  return (short) x;
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result (int *i1, int *i2, int *r)
++{
++  unsigned char *ub1 = (unsigned char *) i1;
++  char *sb2 = (char *) i2;
++  short *sout = (short *) r;
++  int t0;
++  int i;
++
++  for (i = 0; i < 8; i++)
++    { 
++      t0 = ((int) ub1[2 * i] * (int) sb2[2 * i] +
++	    (int) ub1[2 * i + 1] * (int) sb2[2 * i + 1]);
++      sout[i] = signed_saturate_to_word (t0);
++    }
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 8)
++    {
++      /* Manually compute the result */
++      compute_correct_result (&vals[i + 0], &vals[i + 4], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_pmaddubsw (&vals[i + 0], &vals[i + 4], &r[0]);
++      ssse3_test_pmaddubsw (&vals[i + 2], &vals[i + 6], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Run the 128-bit tests */
++      ssse3_test_pmaddubsw128 (&vals[i + 0], &vals[i + 4], r);
++      fail += chk_128 (ck, r);
++    }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-pmulhrsw.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,86 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_pmulhrsw (int *i1, int *i2, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  __m64 t2 = *(__m64 *) i2;
++  *(__m64 *) r = _mm_mulhrs_pi16 (t1, t2);
++  _mm_empty ();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_pmulhrsw128 (int *i1, int *i2, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  __m128i t2 = *(__m128i *) i2;
++  *(__m128i *) r = _mm_mulhrs_epi16 (t1, t2);
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result (int *i1, int *i2, int *r)
++{
++  short *s1 = (short *) i1;
++  short *s2 = (short *) i2;
++  short *sout = (short *) r;
++  int t0;
++  int i;
++
++  for (i = 0; i < 8; i++)
++    {
++      t0 = (((int) s1[i] * (int) s2[i]) >> 14) + 1;
++      sout[i] = (short) (t0 >> 1);
++    }
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 8)
++    {
++      /* Manually compute the result */
++      compute_correct_result (&vals[i + 0], &vals[i + 4], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_pmulhrsw (&vals[i + 0], &vals[i + 4], &r[0]);
++      ssse3_test_pmulhrsw (&vals[i + 2], &vals[i + 6], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Run the 128-bit tests */
++      ssse3_test_pmulhrsw128 (&vals[i + 0], &vals[i + 4], r);
++      fail += chk_128 (ck, r);
++    }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-pshufb.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,113 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_pshufb (int *i1, int *i2, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  __m64 t2 = *(__m64 *) i2;
++  *(__m64 *)r = _mm_shuffle_pi8 (t1, t2);
++  _mm_empty ();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_pshufb128 (int *i1, int *i2, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  __m128i t2 = *(__m128i *) i2;
++  *(__m128i *)r = _mm_shuffle_epi8 (t1, t2);
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result_64 (int *i1, int *i2, int *r)
++{
++  char *b1 = (char *) i1;
++  char *b2 = (char *) i2;
++  char *bout = (char *) r;
++  int i;
++  char select;
++
++  for (i = 0; i < 16; i++)
++    {
++      select = b2[i];
++      if (select & 0x80)
++	bout[i] = 0;
++      else if (i < 8)
++	bout[i] = b1[select & 0x7];
++      else
++	bout[i] = b1[8 + (select & 0x7)];
++    }
++}
++
++static void
++compute_correct_result_128 (int *i1, int *i2, int *r)
++{
++  char *b1 = (char *) i1;
++  char *b2 = (char *) i2;
++  char *bout = (char *) r;
++  int i;
++  char select;
++
++  for (i = 0; i < 16; i++)
++    {
++      select = b2[i];
++      if (select & 0x80)
++	bout[i] = 0;
++      else
++	bout[i] = b1[select & 0xf];
++    }
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 8)
++    {
++      /* Manually compute the result */
++      compute_correct_result_64 (&vals[i + 0], &vals[i + 4], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_pshufb (&vals[i + 0], &vals[i + 4], &r[0]);
++      ssse3_test_pshufb (&vals[i + 2], &vals[i + 6], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Recompute the result for 128-bits */
++      compute_correct_result_128 (&vals[i + 0], &vals[i + 4], ck);
++
++      /* Run the 128-bit tests */
++      ssse3_test_pshufb128 (&vals[i + 0], &vals[i + 4], r);
++      fail += chk_128 (ck, r);
++    }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-psignb.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,87 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_psignb (int *i1, int *i2, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  __m64 t2 = *(__m64 *) i2;
++  *(__m64 *) r = _mm_sign_pi8 (t1, t2);
++  _mm_empty ();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_psignb128 (int *i1, int *i2, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  __m128i t2 = *(__m128i *) i2;
++  *(__m128i *) r = _mm_sign_epi8 (t1, t2);
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result (int *i1, int *i2, int *r)
++{
++  char *b1 = (char *) i1;
++  char *b2 = (char *) i2;
++  char *bout = (char *) r;
++  int i;
++
++  for (i = 0; i < 16; i++)
++    if (b2[i] < 0)
++      bout[i] = -b1[i];
++    else if (b2[i] == 0)
++      bout[i] = 0;
++    else
++      bout[i] = b1[i];
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 8)
++    {
++      /* Manually compute the result */
++      compute_correct_result (&vals[i + 0], &vals[i + 4], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_psignb (&vals[i + 0], &vals[i + 4], &r[0]);
++      ssse3_test_psignb (&vals[i + 2], &vals[i + 6], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Run the 128-bit tests */
++      ssse3_test_psignb128 (&vals[i + 0], &vals[i + 4], r);
++      fail += chk_128 (ck, r);
++    }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-psignd.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,84 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_psignd (int *i1, int *i2, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  __m64 t2 = *(__m64 *) i2;
++  *(__m64 *) r = _mm_sign_pi32 (t1, t2);
++  _mm_empty ();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_psignd128 (int *i1, int *i2, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  __m128i t2 = *(__m128i *) i2;
++  *(__m128i *)r = _mm_sign_epi32 (t1, t2);
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result (int *i1, int *i2, int *r)
++{
++  int i;
++
++  for (i = 0; i < 4; i++)
++    if (i2[i] < 0)
++      r[i] = -i1[i];
++    else if (i2[i] == 0)
++      r[i] = 0;
++    else
++      r[i] = i1[i];
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 8)
++    {
++      /* Manually compute the result */
++      compute_correct_result (&vals[i + 0], &vals[i + 4], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_psignd (&vals[i + 0], &vals[i + 4], &r[0]);
++      ssse3_test_psignd (&vals[i + 2], &vals[i + 6], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Run the 128-bit tests */
++      ssse3_test_psignd128 (&vals[i + 0], &vals[i + 4], r);
++      fail += chk_128 (ck, r);
++    }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-psignw.c	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,87 @@
++/* { dg-do run { target i?86-*-* x86_64-*-* } } */
++/* { dg-options "-O2 -mssse3" } */
++#include <tmmintrin.h>
++#include <stdlib.h>
++#include "../../gcc.dg/i386-cpuid.h"
++#include "ssse3-vals.h"
++
++static void ssse3_test (void);
++
++int
++main ()
++{
++  unsigned long cpu_facilities;
++ 
++  cpu_facilities = i386_cpuid_ecx ();
++
++  /* Run SSSE3 test only if host has SSSE3 support.  */
++  if ((cpu_facilities & bit_SSSE3))
++    ssse3_test ();
++
++  exit (0);
++}
++
++/* Test the 64-bit form */
++static void
++ssse3_test_psignw (int *i1, int *i2, int *r)
++{
++  __m64 t1 = *(__m64 *) i1;
++  __m64 t2 = *(__m64 *) i2;
++  *(__m64 *) r = _mm_sign_pi16 (t1, t2);
++  _mm_empty ();
++}
++
++/* Test the 128-bit form */
++static void
++ssse3_test_psignw128 (int *i1, int *i2, int *r)
++{
++  /* Assumes incoming pointers are 16-byte aligned */
++  __m128i t1 = *(__m128i *) i1;
++  __m128i t2 = *(__m128i *) i2;
++ *(__m128i *) r = _mm_sign_epi16 (t1, t2);
++}
++
++/* Routine to manually compute the results */
++static void
++compute_correct_result (int *i1, int *i2, int *r)
++{
++  short *s1 = (short *) i1;
++  short *s2 = (short *) i2;
++  short *sout = (short *) r;
++  int i;
++
++  for (i = 0; i < 8; i++)
++    if (s2[i] < 0)
++      sout[i] = -s1[i];
++    else if (s2[i] == 0)
++      sout[i] = 0;
++    else
++      sout[i] = s1[i];
++}
++
++static void
++ssse3_test (void)
++{
++  int i;
++  int r [4] __attribute__ ((aligned(16)));
++  int ck [4];
++  int fail = 0;
++
++  for (i = 0; i < 256; i += 8)
++    {
++      /* Manually compute the result */
++      compute_correct_result (&vals[i + 0], &vals[i + 4], ck);
++
++      /* Run the 64-bit tests */
++      ssse3_test_psignw (&vals[i + 0], &vals[i + 4], &r[0]);
++      ssse3_test_psignw (&vals[i + 2], &vals[i + 6], &r[2]);
++      fail += chk_128 (ck, r);
++
++      /* Run the 128-bit tests */
++      ssse3_test_psignw128 (&vals[i + 0], &vals[i + 4], r);
++      fail += chk_128 (ck, r);
++    }
++
++  if (fail != 0)
++    abort ();
++}
+--- /dev/null	2007-01-11 13:39:14.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/ssse3-vals.h	2007-01-11 13:39:14.000000000 +0100
+@@ -0,0 +1,60 @@
++/* Routine to check correctness of the results */
++static int
++chk_128 (int *v1, int *v2)
++{
++  int i;
++  int n_fails = 0;
++
++  for (i = 0; i < 4; i++)
++    if (v1[i] != v2[i])
++      n_fails += 1;
++
++  return n_fails;
++}
++
++static int vals [256] __attribute__ ((aligned(16))) =
++{
++  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x5be800ee, 0x4f2d7b15,
++  0x409d9291, 0xdd95f27f, 0x423986e3, 0x21a4d2cd, 0xa7056d84, 0x4f4e5a3b,
++  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
++  0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
++  0x73ef0244, 0xcd836329, 0x847f634f, 0xa7e3abcf, 0xb4c14764, 0x1ef42c06,
++  0x504f29ac, 0x4ae7ca73, 0xaddde3c9, 0xf63ded2e, 0xa5d3553d, 0xa52ae05f,
++  0x6fd3c83a, 0x7dc2b300, 0x76b05de7, 0xea8ebae5, 0x549568dd, 0x172f0358,
++  0x917eadf0, 0x796fb0a7, 0xb39381af, 0xd0591d61, 0x731d2f17, 0xbc4b6f5d,
++  0x8ec664c2, 0x3c199c19, 0x9c81db12, 0x6d85913b, 0x486107a9, 0xab6f4b26,
++  0x5630d37c, 0x20836e85, 0x40d4e746, 0xdfbaba36, 0xbeacaa69, 0xb3c84083,
++  0x8a688eb4, 0x08cde481, 0x66e7a190, 0x74ee1639, 0xb3942a19, 0xe0c40471,
++  0x9b789489, 0x9751207a, 0x543a1524, 0x41da7ad6, 0x614bb563, 0xf86f57b1,
++  0x69e62199, 0x2150cb12, 0x9ed74062, 0x429471f4, 0xad28502b, 0xf2e2d4d5,
++  0x45b6ce09, 0xaaa5e649, 0xb46da484, 0x0a637515, 0xae7a3212, 0x5afc784c,
++  0x776cfbbe, 0x9c542bb2, 0x64193aa8, 0x16e8a655, 0x4e3d2f92, 0xe05d7b72,
++  0x89854ebc, 0x8c318814, 0xb81e76e0, 0x3f2625f5, 0x61b44852, 0x5209d7ad,
++  0x842fe317, 0xd3cfcca1, 0x8d287cc7, 0x80f0c9a8, 0x4215f4e5, 0x563993d6,
++  0x5d627433, 0xc4449e35, 0x5b4fe009, 0x3ef92286, 0xacbc8927, 0x549ab870,
++  0x9ac5b959, 0xed8f1c91, 0x7ecf02cd, 0x989c0e8b, 0xa31d6918, 0x1dc2bcc1,
++  0x99d3f3cc, 0x6857acc8, 0x45d7324a, 0xaebdf2e6, 0x7af2f2ae, 0x09716f73,
++  0x7816e694, 0xc65493c0, 0x9f7e87bc, 0xaa96cd40, 0xbfb5bfc6, 0x01a2cce7,
++  0x5f1d8c46, 0x45303efb, 0xb24607c3, 0xef2009a7, 0xba873753, 0xbefb14bc,
++  0x74e53cd3, 0x70124708, 0x6eb4bdbd, 0xf3ba5e43, 0x4c94085f, 0x0c03e7e0,
++  0x9a084931, 0x62735424, 0xaeee77c5, 0xdb34f90f, 0x6860cbdd, 0xaf77cf9f,
++  0x95b28158, 0x23bd70d7, 0x9fbc3d88, 0x742e659e, 0x53bcfb48, 0xb8a63f6c,
++  0x4dcf3373, 0x2b168627, 0x4fe20745, 0xd0af5e94, 0x22514e6a, 0xb8ef25c2,
++  0x89ec781a, 0x13d9002b, 0x6d724500, 0x7fdbf63f, 0xb0e9ced5, 0xf919e0f3,
++  0x00fef203, 0x8905d47a, 0x434e7517, 0x4aef8e2c, 0x689f51e8, 0xe513b7c3,
++  0x72bbc5d2, 0x3a222f74, 0x05c3a0f9, 0xd5489d82, 0xb41fbe83, 0xec5d305f,
++  0x5ea02b0b, 0xb176065b, 0xa8eb404e, 0x80349117, 0x210fd49e, 0x43898d0e,
++  0x6c151b9c, 0x8742df18, 0x7b64de73, 0x1dbf52b2, 0x55c9cb19, 0xeb841f10,
++  0x10b8ae76, 0x0764ecb6, 0xb7479018, 0x2672cb3f, 0x7ac9ac90, 0x4be5332c,
++  0x8f1a0615, 0x4efb7a77, 0x16551a85, 0xdb2c3d66, 0x49179c07, 0x5dc4657e,
++  0x5e76907e, 0xd7486a9c, 0x445204a4, 0x65cdc426, 0x33f86ded, 0xcba95dda,
++  0x83351f16, 0xfedefad9, 0x639b620f, 0x86896a64, 0xba4099ba, 0x965f4a21,
++  0x1247154f, 0x25604c42, 0x5862d692, 0xb1e9149e, 0x612516a5, 0x02c49bf8,
++  0x631212bf, 0x9f69f54e, 0x168b63b0, 0x310a25ba, 0xa42a59cd, 0x084f0af9,
++  0x44a06cec, 0x5c0cda40, 0xb932d721, 0x7c42bb0d, 0x213cd3f0, 0xedc7f5a4,
++  0x7fb85859, 0x6b3da5ea, 0x61cd591e, 0xe8e9aa08, 0x4361fc34, 0x53d40d2a,
++  0x0511ad1b, 0xf996b44c, 0xb5ead756, 0xc022138d, 0x6172adf1, 0xa4a0a3b4,
++  0x8c2977b8, 0xa8e482ed, 0x04fcdd6b, 0x3f7b85d4, 0x4fca1e46, 0xa392ddca,
++  0x569fc791, 0x346a706c, 0x543bf3eb, 0x895b3cde, 0x2146bb80, 0x26b3c168,
++  0x929998db, 0x1ea472c9, 0x7207b36b, 0x6a8f10d4 
++};
+--- gcc-4.1.2/gcc/testsuite/gcc.dg/i386-cpuid.h.ssse3	2007-01-11 13:41:39.000000000 +0100
++++ gcc-4.1.2/gcc/testsuite/gcc.dg/i386-cpuid.h	2007-01-11 13:43:46.000000000 +0100
+@@ -4,6 +4,7 @@
+ 
+ /* %ecx */
+ #define bit_SSE3 (1 << 0)
++#define bit_SSSE3 (1 << 9)
+ 
+ /* %edx */
+ #define bit_CMOV (1 << 15)
+--- gcc-4.1.2/gcc/config/i386/i386.h.ssse3	2007-01-10 10:11:34.000000000 +0100
++++ gcc-4.1.2/gcc/config/i386/i386.h	2007-01-11 13:37:02.000000000 +0100
+@@ -383,6 +383,8 @@ extern int x86_prefetch_sse;
+ 	builtin_define ("__SSE2__");				\
+       if (TARGET_SSE3)						\
+ 	builtin_define ("__SSE3__");				\
++      if (TARGET_SSSE3)						\
++	builtin_define ("__SSSE3__");				\
+       if (TARGET_SSE_MATH && TARGET_SSE)			\
+ 	builtin_define ("__SSE_MATH__");			\
+       if (TARGET_SSE_MATH && TARGET_SSE2)			\
+--- gcc-4.1.2/gcc/config/i386/i386.md.ssse3	2007-01-10 10:11:34.000000000 +0100
++++ gcc-4.1.2/gcc/config/i386/i386.md	2007-01-11 13:37:02.000000000 +0100
+@@ -146,6 +146,11 @@
+    (UNSPEC_SP_TEST		101)
+    (UNSPEC_SP_TLS_SET		102)
+    (UNSPEC_SP_TLS_TEST		103)
++
++   ; SSSE3
++   (UNSPEC_PSHUFB		120)
++   (UNSPEC_PSIGN		121)
++   (UNSPEC_PALIGNR		122)
+   ])
+ 
+ (define_constants
+@@ -20648,6 +20653,6 @@
+   "mov{q}\t{%1, %3|%3, %1}\;xor{q}\t{%%fs:%P2, %3|%3, QWORD PTR %%fs:%P2}"
+   [(set_attr "type" "multi")])
+ 
+-(include "sse.md")
+ (include "mmx.md")
++(include "sse.md")
+ (include "sync.md")
+--- gcc-4.1.2/gcc/config/i386/sse.md.ssse3	2007-01-11 13:16:06.000000000 +0100
++++ gcc-4.1.2/gcc/config/i386/sse.md	2007-01-11 13:37:02.000000000 +0100
+@@ -3917,3 +3917,578 @@
+ ;; zero extended to 64bit, we only need to set up 32bit registers.
+   "monitor"
+   [(set_attr "length" "3")])
++
++;; SSSE3
++(define_insn "ssse3_phaddwv8hi3"
++  [(set (match_operand:V8HI 0 "register_operand" "=x")
++	(vec_concat:V8HI
++	  (vec_concat:V4HI
++	    (vec_concat:V2HI
++	      (plus:HI
++		(vec_select:HI
++		  (match_operand:V8HI 1 "register_operand" "0")
++		  (parallel [(const_int 0)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 1)])))
++	      (plus:HI
++		(vec_select:HI (match_dup 1) (parallel [(const_int 2)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 3)]))))
++	    (vec_concat:V2HI
++	      (plus:HI
++		(vec_select:HI (match_dup 1) (parallel [(const_int 4)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 5)])))
++	      (plus:HI
++		(vec_select:HI (match_dup 1) (parallel [(const_int 6)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 7)])))))
++	  (vec_concat:V4HI
++	    (vec_concat:V2HI
++	      (plus:HI
++		(vec_select:HI
++		  (match_operand:V8HI 2 "nonimmediate_operand" "xm")
++		  (parallel [(const_int 0)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 1)])))
++	      (plus:HI
++		(vec_select:HI (match_dup 2) (parallel [(const_int 2)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 3)]))))
++	    (vec_concat:V2HI
++	      (plus:HI
++		(vec_select:HI (match_dup 2) (parallel [(const_int 4)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 5)])))
++	      (plus:HI
++		(vec_select:HI (match_dup 2) (parallel [(const_int 6)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 7)])))))))]
++  "TARGET_SSSE3"
++  "phaddw\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseiadd")
++   (set_attr "mode" "TI")])
++
++(define_insn "ssse3_phaddwv4hi3"
++  [(set (match_operand:V4HI 0 "register_operand" "=y")
++	(vec_concat:V4HI
++	  (vec_concat:V2HI
++	    (plus:HI
++	      (vec_select:HI
++		(match_operand:V4HI 1 "register_operand" "0")
++		(parallel [(const_int 0)]))
++	      (vec_select:HI (match_dup 1) (parallel [(const_int 1)])))
++	    (plus:HI
++	      (vec_select:HI (match_dup 1) (parallel [(const_int 2)]))
++	      (vec_select:HI (match_dup 1) (parallel [(const_int 3)]))))
++	  (vec_concat:V2HI
++	    (plus:HI
++	      (vec_select:HI
++		(match_operand:V4HI 2 "nonimmediate_operand" "ym")
++		(parallel [(const_int 0)]))
++	      (vec_select:HI (match_dup 2) (parallel [(const_int 1)])))
++	    (plus:HI
++	      (vec_select:HI (match_dup 2) (parallel [(const_int 2)]))
++	      (vec_select:HI (match_dup 2) (parallel [(const_int 3)]))))))]
++  "TARGET_SSSE3"
++  "phaddw\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseiadd")
++   (set_attr "mode" "DI")])
++
++(define_insn "ssse3_phadddv4si3"
++  [(set (match_operand:V4SI 0 "register_operand" "=x")
++	(vec_concat:V4SI
++	  (vec_concat:V2SI
++	    (plus:SI
++	      (vec_select:SI
++		(match_operand:V4SI 1 "register_operand" "0")
++		(parallel [(const_int 0)]))
++	      (vec_select:SI (match_dup 1) (parallel [(const_int 1)])))
++	    (plus:SI
++	      (vec_select:SI (match_dup 1) (parallel [(const_int 2)]))
++	      (vec_select:SI (match_dup 1) (parallel [(const_int 3)]))))
++	  (vec_concat:V2SI
++	    (plus:SI
++	      (vec_select:SI
++		(match_operand:V4SI 2 "nonimmediate_operand" "xm")
++		(parallel [(const_int 0)]))
++	      (vec_select:SI (match_dup 2) (parallel [(const_int 1)])))
++	    (plus:SI
++	      (vec_select:SI (match_dup 2) (parallel [(const_int 2)]))
++	      (vec_select:SI (match_dup 2) (parallel [(const_int 3)]))))))]
++  "TARGET_SSSE3"
++  "phaddd\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseiadd")
++   (set_attr "mode" "TI")])
++
++(define_insn "ssse3_phadddv2si3"
++  [(set (match_operand:V2SI 0 "register_operand" "=y")
++	(vec_concat:V2SI
++	  (plus:SI
++	    (vec_select:SI
++	      (match_operand:V2SI 1 "register_operand" "0")
++	      (parallel [(const_int 0)]))
++	    (vec_select:SI (match_dup 1) (parallel [(const_int 1)])))
++	  (plus:SI
++	    (vec_select:SI
++	      (match_operand:V2SI 2 "nonimmediate_operand" "ym")
++	      (parallel [(const_int 0)]))
++	    (vec_select:SI (match_dup 2) (parallel [(const_int 1)])))))]
++  "TARGET_SSSE3"
++  "phaddd\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseiadd")
++   (set_attr "mode" "DI")])
++
++(define_insn "ssse3_phaddswv8hi3"
++  [(set (match_operand:V8HI 0 "register_operand" "=x")
++	(vec_concat:V8HI
++	  (vec_concat:V4HI
++	    (vec_concat:V2HI
++	      (ss_plus:HI
++		(vec_select:HI
++		  (match_operand:V8HI 1 "register_operand" "0")
++		  (parallel [(const_int 0)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 1)])))
++	      (ss_plus:HI
++		(vec_select:HI (match_dup 1) (parallel [(const_int 2)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 3)]))))
++	    (vec_concat:V2HI
++	      (ss_plus:HI
++		(vec_select:HI (match_dup 1) (parallel [(const_int 4)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 5)])))
++	      (ss_plus:HI
++		(vec_select:HI (match_dup 1) (parallel [(const_int 6)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 7)])))))
++	  (vec_concat:V4HI
++	    (vec_concat:V2HI
++	      (ss_plus:HI
++		(vec_select:HI
++		  (match_operand:V8HI 2 "nonimmediate_operand" "xm")
++		  (parallel [(const_int 0)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 1)])))
++	      (ss_plus:HI
++		(vec_select:HI (match_dup 2) (parallel [(const_int 2)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 3)]))))
++	    (vec_concat:V2HI
++	      (ss_plus:HI
++		(vec_select:HI (match_dup 2) (parallel [(const_int 4)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 5)])))
++	      (ss_plus:HI
++		(vec_select:HI (match_dup 2) (parallel [(const_int 6)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 7)])))))))]
++  "TARGET_SSSE3"
++  "phaddsw\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseiadd")
++   (set_attr "mode" "TI")])
++
++(define_insn "ssse3_phaddswv4hi3"
++  [(set (match_operand:V4HI 0 "register_operand" "=y")
++	(vec_concat:V4HI
++	  (vec_concat:V2HI
++	    (ss_plus:HI
++	      (vec_select:HI
++		(match_operand:V4HI 1 "register_operand" "0")
++		(parallel [(const_int 0)]))
++	      (vec_select:HI (match_dup 1) (parallel [(const_int 1)])))
++	    (ss_plus:HI
++	      (vec_select:HI (match_dup 1) (parallel [(const_int 2)]))
++	      (vec_select:HI (match_dup 1) (parallel [(const_int 3)]))))
++	  (vec_concat:V2HI
++	    (ss_plus:HI
++	      (vec_select:HI
++		(match_operand:V4HI 2 "nonimmediate_operand" "ym")
++		(parallel [(const_int 0)]))
++	      (vec_select:HI (match_dup 2) (parallel [(const_int 1)])))
++	    (ss_plus:HI
++	      (vec_select:HI (match_dup 2) (parallel [(const_int 2)]))
++	      (vec_select:HI (match_dup 2) (parallel [(const_int 3)]))))))]
++  "TARGET_SSSE3"
++  "phaddsw\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseiadd")
++   (set_attr "mode" "DI")])
++
++(define_insn "ssse3_phsubwv8hi3"
++  [(set (match_operand:V8HI 0 "register_operand" "=x")
++	(vec_concat:V8HI
++	  (vec_concat:V4HI
++	    (vec_concat:V2HI
++	      (minus:HI
++		(vec_select:HI
++		  (match_operand:V8HI 1 "register_operand" "0")
++		  (parallel [(const_int 0)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 1)])))
++	      (minus:HI
++		(vec_select:HI (match_dup 1) (parallel [(const_int 2)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 3)]))))
++	    (vec_concat:V2HI
++	      (minus:HI
++		(vec_select:HI (match_dup 1) (parallel [(const_int 4)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 5)])))
++	      (minus:HI
++		(vec_select:HI (match_dup 1) (parallel [(const_int 6)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 7)])))))
++	  (vec_concat:V4HI
++	    (vec_concat:V2HI
++	      (minus:HI
++		(vec_select:HI
++		  (match_operand:V8HI 2 "nonimmediate_operand" "xm")
++		  (parallel [(const_int 0)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 1)])))
++	      (minus:HI
++		(vec_select:HI (match_dup 2) (parallel [(const_int 2)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 3)]))))
++	    (vec_concat:V2HI
++	      (minus:HI
++		(vec_select:HI (match_dup 2) (parallel [(const_int 4)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 5)])))
++	      (minus:HI
++		(vec_select:HI (match_dup 2) (parallel [(const_int 6)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 7)])))))))]
++  "TARGET_SSSE3"
++  "phsubw\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseiadd")
++   (set_attr "mode" "TI")])
++
++(define_insn "ssse3_phsubwv4hi3"
++  [(set (match_operand:V4HI 0 "register_operand" "=y")
++	(vec_concat:V4HI
++	  (vec_concat:V2HI
++	    (minus:HI
++	      (vec_select:HI
++		(match_operand:V4HI 1 "register_operand" "0")
++		(parallel [(const_int 0)]))
++	      (vec_select:HI (match_dup 1) (parallel [(const_int 1)])))
++	    (minus:HI
++	      (vec_select:HI (match_dup 1) (parallel [(const_int 2)]))
++	      (vec_select:HI (match_dup 1) (parallel [(const_int 3)]))))
++	  (vec_concat:V2HI
++	    (minus:HI
++	      (vec_select:HI
++		(match_operand:V4HI 2 "nonimmediate_operand" "ym")
++		(parallel [(const_int 0)]))
++	      (vec_select:HI (match_dup 2) (parallel [(const_int 1)])))
++	    (minus:HI
++	      (vec_select:HI (match_dup 2) (parallel [(const_int 2)]))
++	      (vec_select:HI (match_dup 2) (parallel [(const_int 3)]))))))]
++  "TARGET_SSSE3"
++  "phsubw\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseiadd")
++   (set_attr "mode" "DI")])
++
++(define_insn "ssse3_phsubdv4si3"
++  [(set (match_operand:V4SI 0 "register_operand" "=x")
++	(vec_concat:V4SI
++	  (vec_concat:V2SI
++	    (minus:SI
++	      (vec_select:SI
++		(match_operand:V4SI 1 "register_operand" "0")
++		(parallel [(const_int 0)]))
++	      (vec_select:SI (match_dup 1) (parallel [(const_int 1)])))
++	    (minus:SI
++	      (vec_select:SI (match_dup 1) (parallel [(const_int 2)]))
++	      (vec_select:SI (match_dup 1) (parallel [(const_int 3)]))))
++	  (vec_concat:V2SI
++	    (minus:SI
++	      (vec_select:SI
++		(match_operand:V4SI 2 "nonimmediate_operand" "xm")
++		(parallel [(const_int 0)]))
++	      (vec_select:SI (match_dup 2) (parallel [(const_int 1)])))
++	    (minus:SI
++	      (vec_select:SI (match_dup 2) (parallel [(const_int 2)]))
++	      (vec_select:SI (match_dup 2) (parallel [(const_int 3)]))))))]
++  "TARGET_SSSE3"
++  "phsubd\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseiadd")
++   (set_attr "mode" "TI")])
++
++(define_insn "ssse3_phsubdv2si3"
++  [(set (match_operand:V2SI 0 "register_operand" "=y")
++	(vec_concat:V2SI
++	  (minus:SI
++	    (vec_select:SI
++	      (match_operand:V2SI 1 "register_operand" "0")
++	      (parallel [(const_int 0)]))
++	    (vec_select:SI (match_dup 1) (parallel [(const_int 1)])))
++	  (minus:SI
++	    (vec_select:SI
++	      (match_operand:V2SI 2 "nonimmediate_operand" "ym")
++	      (parallel [(const_int 0)]))
++	    (vec_select:SI (match_dup 2) (parallel [(const_int 1)])))))]
++  "TARGET_SSSE3"
++  "phsubd\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseiadd")
++   (set_attr "mode" "DI")])
++
++(define_insn "ssse3_phsubswv8hi3"
++  [(set (match_operand:V8HI 0 "register_operand" "=x")
++	(vec_concat:V8HI
++	  (vec_concat:V4HI
++	    (vec_concat:V2HI
++	      (ss_minus:HI
++		(vec_select:HI
++		  (match_operand:V8HI 1 "register_operand" "0")
++		  (parallel [(const_int 0)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 1)])))
++	      (ss_minus:HI
++		(vec_select:HI (match_dup 1) (parallel [(const_int 2)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 3)]))))
++	    (vec_concat:V2HI
++	      (ss_minus:HI
++		(vec_select:HI (match_dup 1) (parallel [(const_int 4)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 5)])))
++	      (ss_minus:HI
++		(vec_select:HI (match_dup 1) (parallel [(const_int 6)]))
++		(vec_select:HI (match_dup 1) (parallel [(const_int 7)])))))
++	  (vec_concat:V4HI
++	    (vec_concat:V2HI
++	      (ss_minus:HI
++		(vec_select:HI
++		  (match_operand:V8HI 2 "nonimmediate_operand" "xm")
++		  (parallel [(const_int 0)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 1)])))
++	      (ss_minus:HI
++		(vec_select:HI (match_dup 2) (parallel [(const_int 2)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 3)]))))
++	    (vec_concat:V2HI
++	      (ss_minus:HI
++		(vec_select:HI (match_dup 2) (parallel [(const_int 4)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 5)])))
++	      (ss_minus:HI
++		(vec_select:HI (match_dup 2) (parallel [(const_int 6)]))
++		(vec_select:HI (match_dup 2) (parallel [(const_int 7)])))))))]
++  "TARGET_SSSE3"
++  "phsubsw\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseiadd")
++   (set_attr "mode" "TI")])
++
++(define_insn "ssse3_phsubswv4hi3"
++  [(set (match_operand:V4HI 0 "register_operand" "=y")
++	(vec_concat:V4HI
++	  (vec_concat:V2HI
++	    (ss_minus:HI
++	      (vec_select:HI
++		(match_operand:V4HI 1 "register_operand" "0")
++		(parallel [(const_int 0)]))
++	      (vec_select:HI (match_dup 1) (parallel [(const_int 1)])))
++	    (ss_minus:HI
++	      (vec_select:HI (match_dup 1) (parallel [(const_int 2)]))
++	      (vec_select:HI (match_dup 1) (parallel [(const_int 3)]))))
++	  (vec_concat:V2HI
++	    (ss_minus:HI
++	      (vec_select:HI
++		(match_operand:V4HI 2 "nonimmediate_operand" "ym")
++		(parallel [(const_int 0)]))
++	      (vec_select:HI (match_dup 2) (parallel [(const_int 1)])))
++	    (ss_minus:HI
++	      (vec_select:HI (match_dup 2) (parallel [(const_int 2)]))
++	      (vec_select:HI (match_dup 2) (parallel [(const_int 3)]))))))]
++  "TARGET_SSSE3"
++  "phsubsw\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseiadd")
++   (set_attr "mode" "DI")])
++
++(define_insn "ssse3_pmaddubswv8hi3"
++  [(set (match_operand:V8HI 0 "register_operand" "=x")
++	(ss_plus:V8HI
++	  (mult:V8HI
++	    (zero_extend:V8HI
++	      (vec_select:V4QI
++		(match_operand:V16QI 1 "nonimmediate_operand" "%0")
++		(parallel [(const_int 0)
++			   (const_int 2)
++			   (const_int 4)
++			   (const_int 6)
++			   (const_int 8)
++			   (const_int 10)
++			   (const_int 12)
++			   (const_int 14)])))
++	    (sign_extend:V8HI
++	      (vec_select:V8QI
++		(match_operand:V16QI 2 "nonimmediate_operand" "xm")
++		(parallel [(const_int 0)
++			   (const_int 2)
++			   (const_int 4)
++			   (const_int 6)
++			   (const_int 8)
++			   (const_int 10)
++			   (const_int 12)
++			   (const_int 14)]))))
++	  (mult:V8HI
++	    (zero_extend:V8HI
++	      (vec_select:V16QI (match_dup 1)
++		(parallel [(const_int 1)
++			   (const_int 3)
++			   (const_int 5)
++			   (const_int 7)
++			   (const_int 9)
++			   (const_int 11)
++			   (const_int 13)
++			   (const_int 15)])))
++	    (sign_extend:V8HI
++	      (vec_select:V16QI (match_dup 2)
++		(parallel [(const_int 1)
++			   (const_int 3)
++			   (const_int 5)
++			   (const_int 7)
++			   (const_int 9)
++			   (const_int 11)
++			   (const_int 13)
++			   (const_int 15)]))))))]
++  "TARGET_SSSE3"
++  "pmaddubsw\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseiadd")
++   (set_attr "mode" "TI")])
++
++(define_insn "ssse3_pmaddubswv4hi3"
++  [(set (match_operand:V4HI 0 "register_operand" "=y")
++	(ss_plus:V4HI
++	  (mult:V4HI
++	    (zero_extend:V4HI
++	      (vec_select:V4QI
++		(match_operand:V8QI 1 "nonimmediate_operand" "%0")
++		(parallel [(const_int 0)
++			   (const_int 2)
++			   (const_int 4)
++			   (const_int 6)])))
++	    (sign_extend:V4HI
++	      (vec_select:V4QI
++		(match_operand:V8QI 2 "nonimmediate_operand" "ym")
++		(parallel [(const_int 0)
++			   (const_int 2)
++			   (const_int 4)
++			   (const_int 6)]))))
++	  (mult:V4HI
++	    (zero_extend:V4HI
++	      (vec_select:V8QI (match_dup 1)
++		(parallel [(const_int 1)
++			   (const_int 3)
++			   (const_int 5)
++			   (const_int 7)])))
++	    (sign_extend:V4HI
++	      (vec_select:V8QI (match_dup 2)
++		(parallel [(const_int 1)
++			   (const_int 3)
++			   (const_int 5)
++			   (const_int 7)]))))))]
++  "TARGET_SSSE3"
++  "pmaddubsw\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseiadd")
++   (set_attr "mode" "DI")])
++
++(define_insn "ssse3_pmulhrswv8hi3"
++  [(set (match_operand:V8HI 0 "register_operand" "=x")
++	(truncate:V8HI
++	  (lshiftrt:V8SI
++	    (plus:V8SI
++	      (lshiftrt:V8SI
++		(mult:V8SI
++		  (sign_extend:V8SI
++		    (match_operand:V8HI 1 "nonimmediate_operand" "%0"))
++		  (sign_extend:V8SI
++		    (match_operand:V8HI 2 "nonimmediate_operand" "xm")))
++		(const_int 14))
++	      (const_vector:V8HI [(const_int 1) (const_int 1)
++				  (const_int 1) (const_int 1)
++				  (const_int 1) (const_int 1)
++				  (const_int 1) (const_int 1)]))
++	    (const_int 1))))]
++  "TARGET_SSSE3 && ix86_binary_operator_ok (MULT, V8HImode, operands)"
++  "pmulhrsw\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseimul")
++   (set_attr "mode" "TI")])
++
++(define_insn "ssse3_pmulhrswv4hi3"
++  [(set (match_operand:V4HI 0 "register_operand" "=y")
++	(truncate:V4HI
++	  (lshiftrt:V4SI
++	    (plus:V4SI
++	      (lshiftrt:V4SI
++		(mult:V4SI
++		  (sign_extend:V4SI
++		    (match_operand:V4HI 1 "nonimmediate_operand" "%0"))
++		  (sign_extend:V4SI
++		    (match_operand:V4HI 2 "nonimmediate_operand" "ym")))
++		(const_int 14))
++	      (const_vector:V4HI [(const_int 1) (const_int 1)
++				  (const_int 1) (const_int 1)]))
++	    (const_int 1))))]
++  "TARGET_SSSE3 && ix86_binary_operator_ok (MULT, V4HImode, operands)"
++  "pmulhrsw\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseimul")
++   (set_attr "mode" "DI")])
++
++(define_insn "ssse3_pshufbv16qi3"
++  [(set (match_operand:V16QI 0 "register_operand" "=x")
++	(unspec:V16QI [(match_operand:V16QI 1 "register_operand" "0")
++		       (match_operand:V16QI 2 "nonimmediate_operand" "xm")]
++		       UNSPEC_PSHUFB))]
++  "TARGET_SSSE3"
++  "pshufb\t{%2, %0|%0, %2}";
++  [(set_attr "type" "sselog1")
++   (set_attr "mode" "TI")])
++
++(define_insn "ssse3_pshufbv8qi3"
++  [(set (match_operand:V8QI 0 "register_operand" "=y")
++	(unspec:V8QI [(match_operand:V8QI 1 "register_operand" "0")
++		      (match_operand:V8QI 2 "nonimmediate_operand" "ym")]
++		      UNSPEC_PSHUFB))]
++  "TARGET_SSSE3"
++  "pshufb\t{%2, %0|%0, %2}";
++  [(set_attr "type" "sselog1")
++   (set_attr "mode" "DI")])
++
++(define_insn "ssse3_psign<mode>3"
++  [(set (match_operand:SSEMODE124 0 "register_operand" "=x")
++	(unspec:SSEMODE124 [(match_operand:SSEMODE124 1 "register_operand" "0")
++			    (match_operand:SSEMODE124 2 "nonimmediate_operand" "xm")]
++			    UNSPEC_PSIGN))]
++  "TARGET_SSSE3"
++  "psign<ssevecsize>\t{%2, %0|%0, %2}";
++  [(set_attr "type" "sselog1")
++   (set_attr "mode" "TI")])
++
++(define_insn "ssse3_psign<mode>3"
++  [(set (match_operand:MMXMODEI 0 "register_operand" "=y")
++	(unspec:MMXMODEI [(match_operand:MMXMODEI 1 "register_operand" "0")
++			  (match_operand:MMXMODEI 2 "nonimmediate_operand" "ym")]
++			  UNSPEC_PSIGN))]
++  "TARGET_SSSE3"
++  "psign<mmxvecsize>\t{%2, %0|%0, %2}";
++  [(set_attr "type" "sselog1")
++   (set_attr "mode" "DI")])
++
++(define_insn "ssse3_palignrti"
++  [(set (match_operand:TI 0 "register_operand" "=x")
++	(unspec:TI [(match_operand:TI 1 "register_operand" "0")
++		    (match_operand:TI 2 "nonimmediate_operand" "xm")
++		    (match_operand:SI 3 "const_0_to_255_mul_8_operand" "n")]
++		    UNSPEC_PALIGNR))]
++  "TARGET_SSSE3"
++{
++  operands[3] = GEN_INT (INTVAL (operands[3]) / 8);
++  return "palignr\t{%3, %2, %0|%0, %2, %3}";
++}
++  [(set_attr "type" "sseishft")
++   (set_attr "mode" "TI")])
++
++(define_insn "ssse3_palignrdi"
++  [(set (match_operand:DI 0 "register_operand" "=y")
++	(unspec:DI [(match_operand:DI 1 "register_operand" "0")
++		    (match_operand:DI 2 "nonimmediate_operand" "ym")
++		    (match_operand:SI 3 "const_0_to_255_mul_8_operand" "n")]
++		    UNSPEC_PALIGNR))]
++  "TARGET_SSSE3"
++{
++  operands[3] = GEN_INT (INTVAL (operands[3]) / 8);
++  return "palignr\t{%3, %2, %0|%0, %2, %3}";
++}
++  [(set_attr "type" "sseishft")
++   (set_attr "mode" "DI")])
++
++(define_insn "abs<mode>2"
++  [(set (match_operand:SSEMODE124 0 "register_operand" "=x")
++	(abs:SSEMODE124 (match_operand:SSEMODE124 1 "nonimmediate_operand" "xm")))]
++  "TARGET_SSSE3"
++  "pabs<ssevecsize>\t{%1, %0|%0, %1}";
++  [(set_attr "type" "sselog1")
++   (set_attr "mode" "TI")])
++
++(define_insn "abs<mode>2"
++  [(set (match_operand:MMXMODEI 0 "register_operand" "=y")
++	(abs:MMXMODEI (match_operand:MMXMODEI 1 "nonimmediate_operand" "ym")))]
++  "TARGET_SSSE3"
++  "pabs<mmxvecsize>\t{%1, %0|%0, %1}";
++  [(set_attr "type" "sselog1")
++   (set_attr "mode" "DI")])
+--- gcc-4.1.2/gcc/config/i386/i386.opt.ssse3	2006-05-18 06:07:04.000000000 +0200
++++ gcc-4.1.2/gcc/config/i386/i386.opt	2007-01-11 13:37:02.000000000 +0100
+@@ -197,6 +197,10 @@ msse3
+ Target Report Mask(SSE3)
+ Support MMX, SSE, SSE2 and SSE3 built-in functions and code generation
+ 
++mssse3
++Target Report Mask(SSSE3)
++Support MMX, SSE, SSE2, SSE3 and SSSE3 built-in functions and code generation
++
+ msseregparm
+ Target RejectNegative Mask(SSEREGPARM)
+ Use SSE register passing conventions for SF and DF mode
+--- gcc-4.1.2/gcc/config/i386/i386.c.ssse3	2007-01-10 10:11:34.000000000 +0100
++++ gcc-4.1.2/gcc/config/i386/i386.c	2007-01-11 13:37:02.000000000 +0100
+@@ -1446,7 +1446,8 @@ override_options (void)
+ 	  PTA_PREFETCH_SSE = 16,
+ 	  PTA_3DNOW = 32,
+ 	  PTA_3DNOW_A = 64,
+-	  PTA_64BIT = 128
++	  PTA_64BIT = 128,
++	  PTA_SSSE3 = 256
+ 	} flags;
+     }
+   const processor_alias_table[] =
+@@ -1641,6 +1642,9 @@ override_options (void)
+ 	if (processor_alias_table[i].flags & PTA_SSE3
+ 	    && !(target_flags_explicit & MASK_SSE3))
+ 	  target_flags |= MASK_SSE3;
++	if (processor_alias_table[i].flags & PTA_SSSE3
++	    && !(target_flags_explicit & MASK_SSSE3))
++	  target_flags |= MASK_SSSE3;
+ 	if (processor_alias_table[i].flags & PTA_PREFETCH_SSE)
+ 	  x86_prefetch_sse = true;
+ 	if (TARGET_64BIT && !(processor_alias_table[i].flags & PTA_64BIT))
+@@ -1830,6 +1834,10 @@ override_options (void)
+   if (!TARGET_80387)
+     target_flags |= MASK_NO_FANCY_MATH_387;
+ 
++  /* Turn on SSE3 builtins for -mssse3.  */
++  if (TARGET_SSSE3)
++    target_flags |= MASK_SSE3;
++
+   /* Turn on SSE2 builtins for -msse3.  */
+   if (TARGET_SSE3)
+     target_flags |= MASK_SSE2;
+@@ -14193,6 +14201,41 @@ enum ix86_builtins
+   IX86_BUILTIN_MONITOR,
+   IX86_BUILTIN_MWAIT,
+ 
++  /* SSSE3.  */
++  IX86_BUILTIN_PHADDW,
++  IX86_BUILTIN_PHADDD,
++  IX86_BUILTIN_PHADDSW,
++  IX86_BUILTIN_PHSUBW,
++  IX86_BUILTIN_PHSUBD,
++  IX86_BUILTIN_PHSUBSW,
++  IX86_BUILTIN_PMADDUBSW,
++  IX86_BUILTIN_PMULHRSW,
++  IX86_BUILTIN_PSHUFB,
++  IX86_BUILTIN_PSIGNB,
++  IX86_BUILTIN_PSIGNW,
++  IX86_BUILTIN_PSIGND,
++  IX86_BUILTIN_PALIGNR,
++  IX86_BUILTIN_PABSB,
++  IX86_BUILTIN_PABSW,
++  IX86_BUILTIN_PABSD,
++
++  IX86_BUILTIN_PHADDW128,
++  IX86_BUILTIN_PHADDD128,
++  IX86_BUILTIN_PHADDSW128,
++  IX86_BUILTIN_PHSUBW128,
++  IX86_BUILTIN_PHSUBD128,
++  IX86_BUILTIN_PHSUBSW128,
++  IX86_BUILTIN_PMADDUBSW128,
++  IX86_BUILTIN_PMULHRSW128,
++  IX86_BUILTIN_PSHUFB128,
++  IX86_BUILTIN_PSIGNB128,
++  IX86_BUILTIN_PSIGNW128,
++  IX86_BUILTIN_PSIGND128,
++  IX86_BUILTIN_PALIGNR128,
++  IX86_BUILTIN_PABSB128,
++  IX86_BUILTIN_PABSW128,
++  IX86_BUILTIN_PABSD128,
++
+   IX86_BUILTIN_VEC_INIT_V2SI,
+   IX86_BUILTIN_VEC_INIT_V4HI,
+   IX86_BUILTIN_VEC_INIT_V8QI,
+@@ -14533,7 +14576,33 @@ static const struct builtin_description 
+   { MASK_SSE3, CODE_FOR_sse3_haddv4sf3, "__builtin_ia32_haddps", IX86_BUILTIN_HADDPS, 0, 0 },
+   { MASK_SSE3, CODE_FOR_sse3_haddv2df3, "__builtin_ia32_haddpd", IX86_BUILTIN_HADDPD, 0, 0 },
+   { MASK_SSE3, CODE_FOR_sse3_hsubv4sf3, "__builtin_ia32_hsubps", IX86_BUILTIN_HSUBPS, 0, 0 },
+-  { MASK_SSE3, CODE_FOR_sse3_hsubv2df3, "__builtin_ia32_hsubpd", IX86_BUILTIN_HSUBPD, 0, 0 }
++  { MASK_SSE3, CODE_FOR_sse3_hsubv2df3, "__builtin_ia32_hsubpd", IX86_BUILTIN_HSUBPD, 0, 0 },
++
++  /* SSSE3 */
++  { MASK_SSSE3, CODE_FOR_ssse3_phaddwv8hi3, "__builtin_ia32_phaddw128", IX86_BUILTIN_PHADDW128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_phaddwv4hi3, "__builtin_ia32_phaddw", IX86_BUILTIN_PHADDW, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_phadddv4si3, "__builtin_ia32_phaddd128", IX86_BUILTIN_PHADDD128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_phadddv2si3, "__builtin_ia32_phaddd", IX86_BUILTIN_PHADDD, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_phaddswv8hi3, "__builtin_ia32_phaddsw128", IX86_BUILTIN_PHADDSW128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_phaddswv4hi3, "__builtin_ia32_phaddsw", IX86_BUILTIN_PHADDSW, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_phsubwv8hi3, "__builtin_ia32_phsubw128", IX86_BUILTIN_PHSUBW128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_phsubwv4hi3, "__builtin_ia32_phsubw", IX86_BUILTIN_PHSUBW, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_phsubdv4si3, "__builtin_ia32_phsubd128", IX86_BUILTIN_PHSUBD128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_phsubdv2si3, "__builtin_ia32_phsubd", IX86_BUILTIN_PHSUBD, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_phsubswv8hi3, "__builtin_ia32_phsubsw128", IX86_BUILTIN_PHSUBSW128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_phsubswv4hi3, "__builtin_ia32_phsubsw", IX86_BUILTIN_PHSUBSW, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_pmaddubswv8hi3, "__builtin_ia32_pmaddubsw128", IX86_BUILTIN_PMADDUBSW128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_pmaddubswv4hi3, "__builtin_ia32_pmaddubsw", IX86_BUILTIN_PMADDUBSW, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_pmulhrswv8hi3, "__builtin_ia32_pmulhrsw128", IX86_BUILTIN_PMULHRSW128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_pmulhrswv4hi3, "__builtin_ia32_pmulhrsw", IX86_BUILTIN_PMULHRSW, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_pshufbv16qi3, "__builtin_ia32_pshufb128", IX86_BUILTIN_PSHUFB128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_pshufbv8qi3, "__builtin_ia32_pshufb", IX86_BUILTIN_PSHUFB, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_psignv16qi3, "__builtin_ia32_psignb128", IX86_BUILTIN_PSIGNB128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_psignv8qi3, "__builtin_ia32_psignb", IX86_BUILTIN_PSIGNB, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_psignv8hi3, "__builtin_ia32_psignw128", IX86_BUILTIN_PSIGNW128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_psignv4hi3, "__builtin_ia32_psignw", IX86_BUILTIN_PSIGNW, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_psignv4si3, "__builtin_ia32_psignd128", IX86_BUILTIN_PSIGND128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_ssse3_psignv2si3, "__builtin_ia32_psignd", IX86_BUILTIN_PSIGND, 0, 0 }
+ };
+ 
+ static const struct builtin_description bdesc_1arg[] =
+@@ -14580,6 +14649,14 @@ static const struct builtin_description 
+   /* SSE3 */
+   { MASK_SSE3, CODE_FOR_sse3_movshdup, 0, IX86_BUILTIN_MOVSHDUP, 0, 0 },
+   { MASK_SSE3, CODE_FOR_sse3_movsldup, 0, IX86_BUILTIN_MOVSLDUP, 0, 0 },
++
++  /* SSSE3 */
++  { MASK_SSSE3, CODE_FOR_absv16qi2, "__builtin_ia32_pabsb128", IX86_BUILTIN_PABSB128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_absv8qi2, "__builtin_ia32_pabsb", IX86_BUILTIN_PABSB, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_absv8hi2, "__builtin_ia32_pabsw128", IX86_BUILTIN_PABSW128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_absv4hi2, "__builtin_ia32_pabsw", IX86_BUILTIN_PABSW, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_absv4si2, "__builtin_ia32_pabsd128", IX86_BUILTIN_PABSD128, 0, 0 },
++  { MASK_SSSE3, CODE_FOR_absv2si2, "__builtin_ia32_pabsd", IX86_BUILTIN_PABSD, 0, 0 },
+ };
+ 
+ static void
+@@ -14714,6 +14791,16 @@ ix86_init_mmx_sse_builtins (void)
+   /* Normal vector unops.  */
+   tree v4sf_ftype_v4sf
+     = build_function_type_list (V4SF_type_node, V4SF_type_node, NULL_TREE);
++  tree v16qi_ftype_v16qi
++    = build_function_type_list (V16QI_type_node, V16QI_type_node, NULL_TREE);
++  tree v8hi_ftype_v8hi
++    = build_function_type_list (V8HI_type_node, V8HI_type_node, NULL_TREE);
++  tree v4si_ftype_v4si
++    = build_function_type_list (V4SI_type_node, V4SI_type_node, NULL_TREE);
++  tree v8qi_ftype_v8qi
++    = build_function_type_list (V8QI_type_node, V8QI_type_node, NULL_TREE);
++  tree v4hi_ftype_v4hi
++    = build_function_type_list (V4HI_type_node, V4HI_type_node, NULL_TREE);
+ 
+   /* Normal vector binops.  */
+   tree v4sf_ftype_v4sf_v4sf
+@@ -14733,6 +14820,12 @@ ix86_init_mmx_sse_builtins (void)
+ 				long_long_unsigned_type_node,
+ 				long_long_unsigned_type_node, NULL_TREE);
+ 
++  tree di_ftype_di_di_int
++    = build_function_type_list (long_long_unsigned_type_node,
++				long_long_unsigned_type_node,
++				long_long_unsigned_type_node,
++				integer_type_node, NULL_TREE);
++
+   tree v2si_ftype_v2sf
+     = build_function_type_list (V2SI_type_node, V2SF_type_node, NULL_TREE);
+   tree v2sf_ftype_v2si
+@@ -14837,6 +14930,9 @@ ix86_init_mmx_sse_builtins (void)
+   tree v2di_ftype_v2di_int
+     = build_function_type_list (V2DI_type_node,
+ 				V2DI_type_node, integer_type_node, NULL_TREE);
++  tree v2di_ftype_v2di_v2di_int
++    = build_function_type_list (V2DI_type_node, V2DI_type_node,
++				V2DI_type_node, integer_type_node, NULL_TREE);
+   tree v4si_ftype_v4si_int
+     = build_function_type_list (V4SI_type_node,
+ 				V4SI_type_node, integer_type_node, NULL_TREE);
+@@ -14962,6 +15058,50 @@ ix86_init_mmx_sse_builtins (void)
+       def_builtin (d->mask, d->name, type, d->code);
+     }
+ 
++  /* Add all builtins that are more or less simple operations on 1 operand.  */
++  for (i = 0, d = bdesc_1arg; i < ARRAY_SIZE (bdesc_1arg); i++, d++)
++    {
++      enum machine_mode mode;
++      tree type;
++
++      if (d->name == 0)
++	continue;
++      mode = insn_data[d->icode].operand[1].mode;
++
++      switch (mode)
++	{
++	case V16QImode:
++	  type = v16qi_ftype_v16qi;
++	  break;
++	case V8HImode:
++	  type = v8hi_ftype_v8hi;
++	  break;
++	case V4SImode:
++	  type = v4si_ftype_v4si;
++	  break;
++	case V2DFmode:
++	  type = v2df_ftype_v2df;
++	  break;
++	case V4SFmode:
++	  type = v4sf_ftype_v4sf;
++	  break;
++	case V8QImode:
++	  type = v8qi_ftype_v8qi;
++	  break;
++	case V4HImode:
++	  type = v4hi_ftype_v4hi;
++	  break;
++	case V2SImode:
++	  type = v2si_ftype_v2si;
++	  break;
++
++	default:
++	  abort ();
++	}
++
++      def_builtin (d->mask, d->name, type, d->code);
++    }
++
+   /* Add the remaining MMX insns with somewhat more complicated types.  */
+   def_builtin (MASK_MMX, "__builtin_ia32_emms", void_ftype_void, IX86_BUILTIN_EMMS);
+   def_builtin (MASK_MMX, "__builtin_ia32_psllw", v4hi_ftype_v4hi_di, IX86_BUILTIN_PSLLW);
+@@ -15161,6 +15301,12 @@ ix86_init_mmx_sse_builtins (void)
+   def_builtin (MASK_SSE3, "__builtin_ia32_lddqu",
+ 	       v16qi_ftype_pcchar, IX86_BUILTIN_LDDQU);
+ 
++  /* SSSE3.  */
++  def_builtin (MASK_SSSE3, "__builtin_ia32_palignr128",
++	       v2di_ftype_v2di_v2di_int, IX86_BUILTIN_PALIGNR128);
++  def_builtin (MASK_SSSE3, "__builtin_ia32_palignr", di_ftype_di_di_int,
++	       IX86_BUILTIN_PALIGNR);
++
+   /* Access to the vec_init patterns.  */
+   ftype = build_function_type_list (V2SI_type_node, integer_type_node,
+ 				    integer_type_node, NULL_TREE);
+@@ -15651,7 +15797,7 @@ ix86_expand_builtin (tree exp, rtx targe
+   tree arglist = TREE_OPERAND (exp, 1);
+   tree arg0, arg1, arg2;
+   rtx op0, op1, op2, pat;
+-  enum machine_mode tmode, mode0, mode1, mode2;
++  enum machine_mode tmode, mode0, mode1, mode2, mode3;
+   unsigned int fcode = DECL_FUNCTION_CODE (fndecl);
+ 
+   switch (fcode)
+@@ -16020,6 +16166,52 @@ ix86_expand_builtin (tree exp, rtx targe
+       return ix86_expand_unop_builtin (CODE_FOR_sse3_lddqu, arglist,
+ 				       target, 1);
+ 
++    case IX86_BUILTIN_PALIGNR:
++    case IX86_BUILTIN_PALIGNR128:
++      if (fcode == IX86_BUILTIN_PALIGNR)
++	{
++	  icode = CODE_FOR_ssse3_palignrdi;
++	  mode = DImode;
++	}
++      else
++	{
++	  icode = CODE_FOR_ssse3_palignrti;
++	  mode = V2DImode;
++	}
++      arg0 = TREE_VALUE (arglist);
++      arg1 = TREE_VALUE (TREE_CHAIN (arglist));
++      arg2 = TREE_VALUE (TREE_CHAIN (TREE_CHAIN (arglist)));
++      op0 = expand_expr (arg0, NULL_RTX, VOIDmode, 0);
++      op1 = expand_expr (arg1, NULL_RTX, VOIDmode, 0);
++      op2 = expand_expr (arg2, NULL_RTX, VOIDmode, 0);
++      tmode = insn_data[icode].operand[0].mode;
++      mode1 = insn_data[icode].operand[1].mode;
++      mode2 = insn_data[icode].operand[2].mode;
++      mode3 = insn_data[icode].operand[3].mode;
++
++      if (! (*insn_data[icode].operand[1].predicate) (op0, mode1))
++	{
++	  op0 = copy_to_reg (op0);
++	  op0 = simplify_gen_subreg (mode1, op0, GET_MODE (op0), 0);
++	}
++      if (! (*insn_data[icode].operand[2].predicate) (op1, mode2))
++	{
++	  op1 = copy_to_reg (op1);
++	  op1 = simplify_gen_subreg (mode2, op1, GET_MODE (op1), 0);
++	}
++      if (! (*insn_data[icode].operand[3].predicate) (op2, mode3))
++	{
++	  error ("shift must be an immediate");
++	  return const0_rtx;
++	}
++      target = gen_reg_rtx (mode);
++      pat = GEN_FCN (icode) (simplify_gen_subreg (tmode, target, mode, 0),
++			     op0, op1, op2);
++      if (! pat)
++	return 0;
++      emit_insn (pat);
++      return target;
++
+     case IX86_BUILTIN_VEC_INIT_V2SI:
+     case IX86_BUILTIN_VEC_INIT_V4HI:
+     case IX86_BUILTIN_VEC_INIT_V8QI:
+--- /dev/null	2007-01-11 13:37:02.000000000 +0100
++++ gcc-4.1.2/gcc/config/i386/tmmintrin.h	2007-01-11 13:37:02.000000000 +0100
+@@ -0,0 +1,224 @@
++/* Copyright (C) 2006 Free Software Foundation, Inc.
++
++   This file is part of GCC.
++
++   GCC is free software; you can redistribute it and/or modify
++   it under the terms of the GNU General Public License as published by
++   the Free Software Foundation; either version 2, or (at your option)
++   any later version.
++
++   GCC is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++   GNU General Public License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with GCC; see the file COPYING.  If not, write to
++   the Free Software Foundation, 59 Temple Place - Suite 330,
++   Boston, MA 02111-1307, USA.  */
++
++/* As a special exception, if you include this header file into source
++   files compiled by GCC, this header file does not by itself cause
++   the resulting executable to be covered by the GNU General Public
++   License.  This exception does not however invalidate any other
++   reasons why the executable file might be covered by the GNU General
++   Public License.  */
++
++/* Implemented from the specification included in the Intel C++ Compiler
++   User Guide and Reference, version 9.1.  */
++
++#ifndef _TMMINTRIN_H_INCLUDED
++#define _TMMINTRIN_H_INCLUDED
++
++#ifdef __SSSE3__
++#include <pmmintrin.h>
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_hadd_epi16 (__m128i __X, __m128i __Y)
++{
++  return (__m128i) __builtin_ia32_phaddw128 ((__v8hi)__X, (__v8hi)__Y);
++}
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_hadd_epi32 (__m128i __X, __m128i __Y)
++{
++  return (__m128i) __builtin_ia32_phaddd128 ((__v4si)__X, (__v4si)__Y);
++}
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_hadds_epi16 (__m128i __X, __m128i __Y)
++{
++  return (__m128i) __builtin_ia32_phaddsw128 ((__v8hi)__X, (__v8hi)__Y);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_hadd_pi16 (__m64 __X, __m64 __Y)
++{
++  return (__m64) __builtin_ia32_phaddw ((__v4hi)__X, (__v4hi)__Y);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_hadd_pi32 (__m64 __X, __m64 __Y)
++{
++  return (__m64) __builtin_ia32_phaddd ((__v2si)__X, (__v2si)__Y);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_hadds_pi16 (__m64 __X, __m64 __Y)
++{
++  return (__m64) __builtin_ia32_phaddsw ((__v4hi)__X, (__v4hi)__Y);
++}
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_hsub_epi16 (__m128i __X, __m128i __Y)
++{
++  return (__m128i) __builtin_ia32_phsubw128 ((__v8hi)__X, (__v8hi)__Y);
++}
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_hsub_epi32 (__m128i __X, __m128i __Y)
++{
++  return (__m128i) __builtin_ia32_phsubd128 ((__v4si)__X, (__v4si)__Y);
++}
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_hsubs_epi16 (__m128i __X, __m128i __Y)
++{
++  return (__m128i) __builtin_ia32_phsubsw128 ((__v8hi)__X, (__v8hi)__Y);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_hsub_pi16 (__m64 __X, __m64 __Y)
++{
++  return (__m64) __builtin_ia32_phsubw ((__v4hi)__X, (__v4hi)__Y);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_hsub_pi32 (__m64 __X, __m64 __Y)
++{
++  return (__m64) __builtin_ia32_phsubd ((__v2si)__X, (__v2si)__Y);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_hsubs_pi16 (__m64 __X, __m64 __Y)
++{
++  return (__m64) __builtin_ia32_phsubsw ((__v4hi)__X, (__v4hi)__Y);
++}
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_maddubs_epi16 (__m128i __X, __m128i __Y)
++{
++  return (__m128i) __builtin_ia32_pmaddubsw128 ((__v16qi)__X, (__v16qi)__Y);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_maddubs_pi16 (__m64 __X, __m64 __Y)
++{
++  return (__m64) __builtin_ia32_pmaddubsw ((__v8qi)__X, (__v8qi)__Y);
++}
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_mulhrs_epi16 (__m128i __X, __m128i __Y)
++{
++  return (__m128i) __builtin_ia32_pmulhrsw128 ((__v8hi)__X, (__v8hi)__Y);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_mulhrs_pi16 (__m64 __X, __m64 __Y)
++{
++  return (__m64) __builtin_ia32_pmulhrsw ((__v4hi)__X, (__v4hi)__Y);
++}
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_shuffle_epi8 (__m128i __X, __m128i __Y)
++{
++  return (__m128i) __builtin_ia32_pshufb128 ((__v16qi)__X, (__v16qi)__Y);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_shuffle_pi8 (__m64 __X, __m64 __Y)
++{
++  return (__m64) __builtin_ia32_pshufb ((__v8qi)__X, (__v8qi)__Y);
++}
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_sign_epi8 (__m128i __X, __m128i __Y)
++{
++  return (__m128i) __builtin_ia32_psignb128 ((__v16qi)__X, (__v16qi)__Y);
++}
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_sign_epi16 (__m128i __X, __m128i __Y)
++{
++  return (__m128i) __builtin_ia32_psignw128 ((__v8hi)__X, (__v8hi)__Y);
++}
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_sign_epi32 (__m128i __X, __m128i __Y)
++{
++  return (__m128i) __builtin_ia32_psignd128 ((__v4si)__X, (__v4si)__Y);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_sign_pi8 (__m64 __X, __m64 __Y)
++{
++  return (__m64) __builtin_ia32_psignb ((__v8qi)__X, (__v8qi)__Y);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_sign_pi16 (__m64 __X, __m64 __Y)
++{
++  return (__m64) __builtin_ia32_psignw ((__v4hi)__X, (__v4hi)__Y);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_sign_pi32 (__m64 __X, __m64 __Y)
++{
++  return (__m64) __builtin_ia32_psignd ((__v2si)__X, (__v2si)__Y);
++}
++
++#define _mm_alignr_epi8(__X, __Y, __N) \
++  ((__m128i)__builtin_ia32_palignr128 ((__v2di) __X, (__v2di) __Y, (__N) * 8))
++
++#define _mm_alignr_pi8(__X, __Y, __N) \
++  ((__m64)__builtin_ia32_palignr ((long long) (__X), (long long) (__Y), (__N) * 8))
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_abs_epi8 (__m128i __X)
++{
++  return (__m128i) __builtin_ia32_pabsb128 ((__v16qi)__X);
++}
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_abs_epi16 (__m128i __X)
++{
++  return (__m128i) __builtin_ia32_pabsw128 ((__v8hi)__X);
++}
++
++static __inline __m128i __attribute__((__always_inline__))
++_mm_abs_epi32 (__m128i __X)
++{
++  return (__m128i) __builtin_ia32_pabsd128 ((__v4si)__X);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_abs_pi8 (__m64 __X)
++{
++  return (__m64) __builtin_ia32_pabsb ((__v8qi)__X);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_abs_pi16 (__m64 __X)
++{
++  return (__m64) __builtin_ia32_pabsw ((__v4hi)__X);
++}
++
++static __inline __m64 __attribute__((__always_inline__))
++_mm_abs_pi32 (__m64 __X)
++{
++  return (__m64) __builtin_ia32_pabsd ((__v2si)__X);
++}
++
++#endif /* __SSSE3__ */
++
++#endif /* _TMMINTRIN_H_INCLUDED */
+--- gcc-4.1.2/gcc/config.gcc.ssse3	2007-01-10 10:11:34.000000000 +0100
++++ gcc-4.1.2/gcc/config.gcc	2007-01-11 13:37:02.000000000 +0100
+@@ -263,11 +263,13 @@ xscale-*-*)
+ 	;;
+ i[34567]86-*-*)
+ 	cpu_type=i386
+-	extra_headers="mmintrin.h mm3dnow.h xmmintrin.h emmintrin.h pmmintrin.h"
++	extra_headers="mmintrin.h mm3dnow.h xmmintrin.h emmintrin.h
++		       pmmintrin.h tmmintrin.h"
+ 	;;
+ x86_64-*-*)
+ 	cpu_type=i386
+-	extra_headers="mmintrin.h mm3dnow.h xmmintrin.h emmintrin.h pmmintrin.h"
++	extra_headers="mmintrin.h mm3dnow.h xmmintrin.h emmintrin.h
++		       pmmintrin.h tmmintrin.h"
+ 	need_64bit_hwint=yes
+ 	;;
+ ia64-*-*)

@@ -1,0 +1,11 @@
+--- gcc-4.0.2/gcc/java/gjavah.c.gjavah-jint32	2005-06-13 11:43:31.000000000 -0400
++++ gcc-4.0.2/gcc/java/gjavah.c	2005-09-01 02:15:35.000000000 -0400
+@@ -808,7 +808,7 @@ print_field_info (FILE *stream, JCF* jcf
+ 		num = JPOOL_INT (jcf, current_field_value);
+ 		/* We single out the most negative number to print
+ 		   specially.  This avoids later warnings from g++.  */
+-		if (num == (jint) 0x80000000)
++		if (num == (jint)(int) 0x80000000)
+ 		  {
+ 		    most_negative = 1;
+ 		    ++num;

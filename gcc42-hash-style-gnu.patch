@@ -1,0 +1,140 @@
+2007-06-26  Pixel
+
+	rediff patch
+
+2006-07-11  Jakub Jelinek  <jakub@redhat.com>
+
+	* config/i386/linux.h (LINK_SPEC): Add --hash-style=gnu.
+	* config/i386/linux64.h (LINK_SPEC): Likewise.
+	* config/rs6000/sysv4.h (LINK_OS_LINUX_SPEC): Likewise.
+	* config/rs6000/linux64.h (LINK_OS_LINUX_SPEC32,
+	LINK_OS_LINUX_SPEC64): Likewise.
+	* config/s390/linux.h (LINK_SPEC): Likewise.
+	* config/ia64/linux.h (LINK_SPEC): Likewise.
+	* config/sparc/linux.h (LINK_SPEC): Likewise.
+	* config/sparc/linux64.h (LINK_SPEC, LINK_ARCH32_SPEC,
+	LINK_ARCH64_SPEC): Likewise.
+	* config/alpha/linux-elf.h (LINK_SPEC): Likewise.
+
+--- gcc-4.2.0/gcc/config/alpha/linux-elf.h.hash-style-gnu	2007-06-01 17:11:07.000000000 +0200
++++ gcc-4.2.0/gcc/config/alpha/linux-elf.h	2007-06-26 13:40:36.000000000 +0200
+@@ -40,7 +40,7 @@ Boston, MA 02110-1301, USA.  */
+ 
+ #define ELF_DYNAMIC_LINKER	LINUX_DYNAMIC_LINKER
+ 
+-#define LINK_SPEC "-m elf64alpha %{G*} %{relax:-relax}		\
++#define LINK_SPEC "-m elf64alpha --hash-style=gnu %{G*} %{relax:-relax}	\
+   %{O*:-O3} %{!O*:-O1}						\
+   %{shared:-shared}						\
+   %{!shared:							\
+--- gcc-4.2.0/gcc/config/s390/linux.h.hash-style-gnu	2007-06-01 17:11:10.000000000 +0200
++++ gcc-4.2.0/gcc/config/s390/linux.h	2007-06-26 13:40:36.000000000 +0200
+@@ -78,7 +78,7 @@ Software Foundation, 51 Franklin Street,
+ 
+ #undef  LINK_SPEC
+ #define LINK_SPEC \
+-  "%{m31:-m elf_s390}%{m64:-m elf64_s390} \
++  "%{m31:-m elf_s390}%{m64:-m elf64_s390} --hash-style=gnu \
+    %{shared:-shared} \
+    %{!shared: \
+       %{static:-static} \
+--- gcc-4.2.0/gcc/config/sparc/linux.h.hash-style-gnu	2007-06-01 17:11:13.000000000 +0200
++++ gcc-4.2.0/gcc/config/sparc/linux.h	2007-06-26 13:40:36.000000000 +0200
+@@ -133,7 +133,7 @@ Boston, MA 02110-1301, USA.  */
+ 
+ 
+ #undef  LINK_SPEC
+-#define LINK_SPEC "-m elf32_sparc -Y P,/usr/lib %{shared:-shared} \
++#define LINK_SPEC "-m elf32_sparc --hash-style=gnu -Y P,/usr/lib %{shared:-shared} \
+   %{!mno-relax:%{!r:-relax}} \
+   %{!shared: \
+     %{!ibcs: \
+--- gcc-4.2.0/gcc/config/sparc/linux64.h.hash-style-gnu	2007-06-01 17:11:13.000000000 +0200
++++ gcc-4.2.0/gcc/config/sparc/linux64.h	2007-06-26 13:40:36.000000000 +0200
+@@ -167,7 +167,7 @@ Boston, MA 02110-1301, USA.  */
+   { "link_arch_default", LINK_ARCH_DEFAULT_SPEC },	  \
+   { "link_arch",	 LINK_ARCH_SPEC },
+ 
+-#define LINK_ARCH32_SPEC "-m elf32_sparc -Y P,/usr/lib %{shared:-shared} \
++#define LINK_ARCH32_SPEC "-m elf32_sparc --hash-style=gnu -Y P,/usr/lib %{shared:-shared} \
+   %{!shared: \
+     %{!ibcs: \
+       %{!static: \
+@@ -176,7 +176,7 @@ Boston, MA 02110-1301, USA.  */
+         %{static:-static}}} \
+ "
+ 
+-#define LINK_ARCH64_SPEC "-m elf64_sparc -Y P,/usr/lib64 %{shared:-shared} \
++#define LINK_ARCH64_SPEC "-m elf64_sparc --hash-style=gnu -Y P,/usr/lib64 %{shared:-shared} \
+   %{!shared: \
+     %{!ibcs: \
+       %{!static: \
+@@ -257,7 +257,7 @@ Boston, MA 02110-1301, USA.  */
+ #else /* !SPARC_BI_ARCH */
+ 
+ #undef LINK_SPEC
+-#define LINK_SPEC "-m elf64_sparc -Y P,/usr/lib64 %{shared:-shared} \
++#define LINK_SPEC "-m elf64_sparc --hash-style=gnu -Y P,/usr/lib64 %{shared:-shared} \
+   %{!shared: \
+     %{!ibcs: \
+       %{!static: \
+--- gcc-4.2.0/gcc/config/i386/linux.h.hash-style-gnu	2007-06-01 17:11:18.000000000 +0200
++++ gcc-4.2.0/gcc/config/i386/linux.h	2007-06-26 13:40:36.000000000 +0200
+@@ -109,7 +109,7 @@ Boston, MA 02110-1301, USA.  */
+   { "dynamic_linker", LINUX_DYNAMIC_LINKER }
+ 
+ #undef	LINK_SPEC
+-#define LINK_SPEC "-m %(link_emulation) %{shared:-shared} \
++#define LINK_SPEC "-m %(link_emulation) --hash-style=gnu %{shared:-shared} \
+   %{!shared: \
+     %{!ibcs: \
+       %{!static: \
+--- gcc-4.2.0/gcc/config/i386/linux64.h.hash-style-gnu	2007-06-01 17:11:18.000000000 +0200
++++ gcc-4.2.0/gcc/config/i386/linux64.h	2007-06-26 13:44:22.000000000 +0200
+@@ -53,7 +53,7 @@ Boston, MA 02110-1301, USA.  */
+ #define GLIBC_DYNAMIC_LINKER64 "/lib64/ld-linux-x86-64.so.2"
+ 
+ #undef	LINK_SPEC
+-#define LINK_SPEC "%{!m32:-m elf_x86_64} %{m32:-m elf_i386} \
++#define LINK_SPEC "%{!m32:-m elf_x86_64} %{m32:-m elf_i386} --hash-style=gnu \
+   %{shared:-shared} \
+   %{!shared: \
+     %{!static: \
+--- gcc-4.2.0/gcc/config/ia64/linux.h.hash-style-gnu	2007-06-01 17:11:30.000000000 +0200
++++ gcc-4.2.0/gcc/config/ia64/linux.h	2007-06-26 13:40:36.000000000 +0200
+@@ -40,7 +40,7 @@ do {						\
+ #define GLIBC_DYNAMIC_LINKER "/lib/ld-linux-ia64.so.2"
+ 
+ #undef LINK_SPEC
+-#define LINK_SPEC "\
++#define LINK_SPEC "--hash-style=gnu \
+   %{shared:-shared} \
+   %{!shared: \
+     %{!static: \
+--- gcc-4.2.0/gcc/config/rs6000/sysv4.h.hash-style-gnu	2007-06-01 17:11:36.000000000 +0200
++++ gcc-4.2.0/gcc/config/rs6000/sysv4.h	2007-06-26 13:40:36.000000000 +0200
+@@ -902,7 +902,7 @@ extern int fixuplabelno;
+ #define LINUX_DYNAMIC_LINKER \
+   CHOOSE_DYNAMIC_LINKER (GLIBC_DYNAMIC_LINKER, UCLIBC_DYNAMIC_LINKER)
+ 
+-#define LINK_OS_LINUX_SPEC "-m elf32ppclinux %{!shared: %{!static: \
++#define LINK_OS_LINUX_SPEC "-m elf32ppclinux --hash-style=gnu %{!shared: %{!static: \
+   %{rdynamic:-export-dynamic} \
+   %{!dynamic-linker:-dynamic-linker " LINUX_DYNAMIC_LINKER "}}}"
+ 
+--- gcc-4.2.0/gcc/config/rs6000/linux64.h.hash-style-gnu	2007-06-01 17:11:36.000000000 +0200
++++ gcc-4.2.0/gcc/config/rs6000/linux64.h	2007-06-26 13:40:36.000000000 +0200
+@@ -351,11 +351,11 @@ extern int dot_symbols;
+   CHOOSE_DYNAMIC_LINKER (GLIBC_DYNAMIC_LINKER64, UCLIBC_DYNAMIC_LINKER64)
+ 
+ 
+-#define LINK_OS_LINUX_SPEC32 "-m elf32ppclinux %{!shared: %{!static: \
++#define LINK_OS_LINUX_SPEC32 "-m elf32ppclinux --hash-style=gnu %{!shared: %{!static: \
+   %{rdynamic:-export-dynamic} \
+   %{!dynamic-linker:-dynamic-linker " LINUX_DYNAMIC_LINKER32 "}}}"
+ 
+-#define LINK_OS_LINUX_SPEC64 "-m elf64ppc %{!shared: %{!static: \
++#define LINK_OS_LINUX_SPEC64 "-m elf64ppc --hash-style=gnu %{!shared: %{!static: \
+   %{rdynamic:-export-dynamic} \
+   %{!dynamic-linker:-dynamic-linker " LINUX_DYNAMIC_LINKER64 "}}}"
+ 

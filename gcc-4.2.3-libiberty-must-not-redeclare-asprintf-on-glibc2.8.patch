@@ -1,0 +1,44 @@
+HAVE_DECL_ASPRINTF is computed with _GNU_SOURCE unset,
+libiberty/floatformat.c sets _GNU_SOURCE and uses libiberty.h,
+so asprintf is redeclared (/usr/include/stdio.h + libiberty.h)
+
+- if !__USE_FORTIFY_LEVEL or !defined(__extern_always_inline),
+  stdio2.h is not used, no pb
+
+- elsif glibc <= 2.7,
+  stdio2.h is used, but doesn't contain asprintf stuff
+
+- elsif gcc >= 4.3,
+  stdio2.h contains inline version of asprintf 
+  (using ability to pass all anonymous arguments of an
+   __extern_always_inline function to some other vararg function)
+
+- else
+  stdio2.h contains #define for asprintf to call __asprintf_chk,
+  alas this completly messes the declaration of asprintf in libiberty.h
+
+solution below: do not rely in HAVE_DECL_ASPRINTF when __GNU_LIBRARY__ is set
+
+(another solution would be to ensure HAVE_DECL_ASPRINTF is detected with _GNU_SOURCE set)
+
+
+diff -p -up gcc-4.2.3/include/libiberty.h.pix gcc-4.2.3/include/libiberty.h
+--- gcc-4.2.3/include/libiberty.h.pix	2007-02-09 16:29:21.000000000 +0100
++++ gcc-4.2.3/include/libiberty.h	2008-07-04 13:04:56.000000000 +0200
+@@ -550,14 +550,14 @@ extern int pexecute (const char *, char 
+ 
+ extern int pwait (int, int *, int);
+ 
+-#if !HAVE_DECL_ASPRINTF
++#if !HAVE_DECL_ASPRINTF && !defined (__GNU_LIBRARY__)
+ /* Like sprintf but provides a pointer to malloc'd storage, which must
+    be freed by the caller.  */
+ 
+ extern int asprintf (char **, const char *, ...) ATTRIBUTE_PRINTF_2;
+ #endif
+ 
+-#if !HAVE_DECL_VASPRINTF
++#if !HAVE_DECL_VASPRINTF && !defined (__GNU_LIBRARY__)
+ /* Like vsprintf but provides a pointer to malloc'd storage, which
+    must be freed by the caller.  */
+ 

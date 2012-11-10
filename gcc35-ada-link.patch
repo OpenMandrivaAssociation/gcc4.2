@@ -1,0 +1,112 @@
+--- gcc-3.5.0/gcc/ada/link.c.ada-link	2004-04-21 12:10:31.000000000 +0200
++++ gcc-3.5.0/gcc/ada/link.c	2004-07-06 10:55:13.565656554 +0200
+@@ -164,8 +164,8 @@ char *__gnat_object_library_extension = 
+ 
+ #elif defined (linux)
+ const char *__gnat_object_file_option = "";
+-const char *__gnat_run_path_option = "-Wl,-rpath,";
+-char __gnat_shared_libgnat_default = STATIC;
++const char *__gnat_run_path_option = "";
++char __gnat_shared_libgnat_default = SHARED;
+ int __gnat_link_max = 8192;
+ unsigned char __gnat_objlist_file_supported = 1;
+ unsigned char __gnat_using_gnu_linker = 1;
+--- gcc-3.5.0/gcc/ada/Makefile.in.ada-link	2004-06-28 16:36:58.000000000 +0200
++++ gcc-3.5.0/gcc/ada/Makefile.in	2004-07-06 10:51:34.705241655 +0200
+@@ -879,6 +879,69 @@ ifeq ($(strip $(filter-out s390% linux%,
+   LIBRARY_VERSION := $(LIB_VERSION)
+ endif
+ 
++ifeq ($(strip $(filter-out alpha% linux%,$(arch) $(osys))),)
++  MLIB_TGT=5lml-tgt
++  SYMLIB=
++  THREADSLIB=-lpthread
++  GNATLIB_SHARED=gnatlib-shared-dual
++  GMEM_LIB=gmemlib
++  LIBRARY_VERSION := $(strip $(shell grep Library_Version $(fsrcpfx)gnatvsn.ads | sed -e 's/.*GNAT Lib v\(.*\)[ "].*/\1/'))
++endif
++
++ifeq ($(strip $(filter-out sparc% linux%,$(arch) $(osys))),)
++  MLIB_TGT=5lml-tgt
++  SYMLIB=
++  THREADSLIB=-lpthread
++  GNATLIB_SHARED=gnatlib-shared-dual
++  GMEM_LIB=gmemlib
++  LIBRARY_VERSION := $(strip $(shell grep Library_Version $(fsrcpfx)gnatvsn.ads | sed -e 's/.*GNAT Lib v\(.*\)[ "].*/\1/'))
++endif
++
++ifeq ($(strip $(filter-out ia64 linux%,$(arch) $(osys))),)
++  MLIB_TGT=5lml-tgt
++  SYMLIB=
++  THREADSLIB=-lpthread
++  GNATLIB_SHARED=gnatlib-shared-dual
++  GMEM_LIB=gmemlib
++  LIBRARY_VERSION := $(strip $(shell grep Library_Version $(fsrcpfx)gnatvsn.ads | sed -e 's/.*GNAT Lib v\(.*\)[ "].*/\1/'))
++endif
++
++ifeq ($(strip $(filter-out x86_64 linux%,$(arch) $(osys))),)
++  MLIB_TGT=5lml-tgt
++  MISCLIB=
++  THREADSLIB=-lpthread
++  GNATLIB_SHARED=gnatlib-shared-dual
++  GMEM_LIB=gmemlib
++  LIBRARY_VERSION := $(strip $(shell grep Library_Version $(fsrcpfx)gnatvsn.ads | sed -e 's/.*GNAT Lib v\(.*\)[ "].*/\1/'))
++endif
++
++ifeq ($(strip $(filter-out ppc linux%,$(arch) $(osys))),)
++  MLIB_TGT=5lml-tgt
++  MISCLIB=
++  THREADSLIB=-lpthread
++  GNATLIB_SHARED=gnatlib-shared-dual
++  GMEM_LIB=gmemlib
++  LIBRARY_VERSION := $(strip $(shell grep Library_Version $(fsrcpfx)gnatvsn.ads | sed -e 's/.*GNAT Lib v\(.*\)[ "].*/\1/'))
++endif
++
++ifeq ($(strip $(filter-out s390 linux%,$(arch) $(osys))),)
++  MLIB_TGT=5lml-tgt
++  MISCLIB=
++  THREADSLIB=-lpthread
++  GNATLIB_SHARED=gnatlib-shared-dual
++  GMEM_LIB=gmemlib
++  LIBRARY_VERSION := $(strip $(shell grep Library_Version $(fsrcpfx)gnatvsn.ads | sed -e 's/.*GNAT Lib v\(.*\)[ "].*/\1/'))
++endif
++
++ifeq ($(strip $(filter-out s390x linux%,$(arch) $(osys))),)
++  MLIB_TGT=5lml-tgt
++  MISCLIB=
++  THREADSLIB=-lpthread
++  GNATLIB_SHARED=gnatlib-shared-dual
++  GMEM_LIB=gmemlib
++  LIBRARY_VERSION := $(strip $(shell grep Library_Version $(fsrcpfx)gnatvsn.ads | sed -e 's/.*GNAT Lib v\(.*\)[ "].*/\1/'))
++endif
++
+ ifeq ($(strip $(filter-out mips sgi irix%,$(targ))),)
+   ifeq ($(strip $(filter-out mips sgi irix6%,$(targ))),)
+     LIBGNAT_TARGET_PAIRS = \
+--- gcc-3.5.0/gcc/ada/gnat_rm.texi.ada-link	2004-06-28 16:37:03.000000000 +0200
++++ gcc-3.5.0/gcc/ada/gnat_rm.texi	2004-07-06 10:51:34.713241816 +0200
+@@ -19,6 +19,10 @@
+ @settitle GNAT Reference Manual
+ @setchapternewpage odd
+ @syncodeindex fn cp
++@dircategory Programming
++@direntry
++* gnat_rm: (gnat_rm).            GNAT Reference Manual
++@end direntry
+ 
+ @include gcc-common.texi
+ 
+--- gcc-3.5.0/gcc/ada/gnat_ugn.texi.ada-link	2004-06-28 16:37:02.000000000 +0200
++++ gcc-3.5.0/gcc/ada/gnat_ugn.texi	2004-07-06 10:51:34.726242078 +0200
+@@ -125,6 +125,11 @@ A copy of the license is included in the
+ ``GNU Free Documentation License''.
+ @end copying
+ 
++@dircategory Programming
++@direntry
++* gnat_ug: (gnat_ug).            GNAT User's Guide
++@end direntry
++
+ @titlepage
+ 
+ @title GNAT User's Guide
